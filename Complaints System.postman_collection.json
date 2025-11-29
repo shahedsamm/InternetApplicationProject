@@ -1,0 +1,3478 @@
+{
+	"info": {
+		"_postman_id": "0b1f5015-bb2b-45cf-b27e-12e450d296d8",
+		"name": "Complaints System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28324169"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "Token",
+							"item": [
+								{
+									"name": "logout",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/logout",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"logout"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "success",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json",
+														"type": "default"
+													}
+												],
+												"url": {
+													"raw": "{{domain}}/client/logout",
+													"host": [
+														"{{domain}}"
+													],
+													"path": [
+														"client",
+														"logout"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Host",
+													"value": "127.0.0.1:8000"
+												},
+												{
+													"key": "Date",
+													"value": "Mon, 20 Jan 2025 16:33:37 GMT"
+												},
+												{
+													"key": "Date",
+													"value": "Mon, 20 Jan 2025 16:33:37 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "close"
+												},
+												{
+													"key": "X-Powered-By",
+													"value": "PHP/8.2.9"
+												},
+												{
+													"key": "Cache-Control",
+													"value": "no-cache, private"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												},
+												{
+													"key": "X-RateLimit-Limit",
+													"value": "60"
+												},
+												{
+													"key": "X-RateLimit-Remaining",
+													"value": "59"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"data\": true,\n    \"status\": 1,\n    \"message\": \"تم تسجيل الخروج بنجاح\"\n}"
+										},
+										{
+											"name": "invalid token",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json",
+														"type": "default"
+													}
+												],
+												"url": {
+													"raw": "{{domain}}/client/logout",
+													"host": [
+														"{{domain}}"
+													],
+													"path": [
+														"client",
+														"logout"
+													]
+												}
+											},
+											"status": "Forbidden",
+											"code": 403,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Host",
+													"value": "127.0.0.1:8000"
+												},
+												{
+													"key": "Date",
+													"value": "Mon, 20 Jan 2025 16:36:00 GMT"
+												},
+												{
+													"key": "Date",
+													"value": "Mon, 20 Jan 2025 16:36:00 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "close"
+												},
+												{
+													"key": "X-Powered-By",
+													"value": "PHP/8.2.9"
+												},
+												{
+													"key": "Cache-Control",
+													"value": "no-cache, private"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"data\": [],\n    \"status\": 0,\n    \"message\": \"token is not valid\"\n}"
+										}
+									]
+								}
+							],
+							"auth": {
+								"type": "bearer",
+								"bearer": [
+									{
+										"key": "token",
+										"value": "{{admin_token}}",
+										"type": "string"
+									}
+								]
+							},
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"packages": {},
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"packages": {},
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
+							"name": "login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the JSON response body\r",
+											"var jsonData = pm.response.json();\r",
+											"\r",
+											"// Set the data.token in the environment variable if it exists\r",
+											"if (jsonData.data.token) {\r",
+											"    pm.globals.set(\"admin_token\", jsonData.data.token);\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "admin@admin.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "adminadmin",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/login",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"login"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "email",
+													"value": "admin@admin.com",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "admin",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/login",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"login"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "127.0.0.1:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:43:31 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:43:31 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "58"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"token\": \"2|SPuNmCu7PQ4fkxVBWcoWUQtiRZvKufKztEsnClVK2e8ee977\",\n        \"user\": {\n            \"id\": 1,\n            \"first_name\": \"Admin\",\n            \"last_name\": \"Admoon\",\n            \"email\": \"admin@admin.com\",\n            \"email_verified_at\": null,\n            \"phone\": null,\n            \"phone_verified_at\": null,\n            \"mac_address\": null,\n            \"gender\": null,\n            \"lang\": \"ar\",\n            \"birth_date\": null,\n            \"profile_photo\": null,\n            \"banned_at\": null,\n            \"banned_by\": null,\n            \"banning_reason\": null,\n            \"notification_token\": null,\n            \"code\": null,\n            \"deleted_at\": null,\n            \"created_at\": \"2025-01-21T05:40:53.000000Z\",\n            \"updated_at\": \"2025-01-21T05:40:53.000000Z\",\n            \"roles\": [\n                \"admin\"\n            ],\n            \"permissions\": [\n                \"admin.login\",\n                \"admin.logout\",\n                \"admin.show\",\n                \"car.store\",\n                \"car.update\",\n                \"car.destroy\",\n                \"car.show\",\n                \"car.index\",\n                \"car.history\",\n                \"car.schedule\",\n                \"client.index\",\n                \"client.show\",\n                \"client.ban\",\n                \"client.notify\",\n                \"client.reports\",\n                \"client.reviews\",\n                \"driver.register\",\n                \"driver.update\",\n                \"driver.index\",\n                \"driver.show\",\n                \"driver.ban\",\n                \"driver.notify\",\n                \"driver.track\",\n                \"driver.reports\",\n                \"driver.reviews\",\n                \"driver.history\",\n                \"journey.track\",\n                \"journey.notify\",\n                \"report.store\",\n                \"report.update\",\n                \"report.destroy\",\n                \"report.show\",\n                \"report.index\",\n                \"report.followup\",\n                \"review.store\",\n                \"review.update\",\n                \"review.destroy\",\n                \"review.show\",\n                \"review.index\",\n                \"statistic.show\"\n            ]\n        }\n    },\n    \"status\": 1,\n    \"message\": \"تم تسجيل الدخول بنجاح\"\n}"
+								},
+								{
+									"name": "invalid",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "email",
+													"value": "admin@admin.com",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "admin1",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/login",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"login"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "127.0.0.1:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:45:43 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:45:43 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "57"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": [],\n    \"status\": 0,\n    \"message\": \"كلمة المرور والايميل غير متطابقين\"\n}"
+								},
+								{
+									"name": "required",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "email",
+													"value": "admin@admin.com",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "password",
+													"value": "admin1",
+													"type": "text",
+													"disabled": true
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/login",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"login"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "127.0.0.1:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:45:55 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:45:55 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "56"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": [\n            \"حقل البريد الإلكتروني مطلوب.\",\n            \"حقل كلمة المرور مطلوب.\"\n        ]\n    },\n    \"status\": 0,\n    \"message\": \"الطلب غير مطابق للمعايير\"\n}"
+								},
+								{
+									"name": "password max 255",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "email",
+													"value": "admin@admin.com",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "admin1s;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk;kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkg",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/login",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"login"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "127.0.0.1:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:46:35 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:46:35 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "59"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": [\n            \"يجب ألا تتجاوز كلمة المرور 255 حرفاً.\"\n        ]\n    },\n    \"status\": 0,\n    \"message\": \"الطلب غير مطابق للمعايير\"\n}"
+								},
+								{
+									"name": "valid email",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "email",
+													"value": "admin",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "admin",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/login",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"login"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "127.0.0.1:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:47:00 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 21 Jan 2025 05:47:00 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "58"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": [\n            \"يجب أن يكون البريد الإلكتروني عنوان بريد صالح.\"\n        ]\n    },\n    \"status\": 0,\n    \"message\": \"الطلب غير مطابق للمعايير\"\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "index",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/users",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"users"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "role",
+											"value": "",
+											"description": "employee,admin,citizen",
+											"disabled": true
+										},
+										{
+											"key": "per_page",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/users",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users"
+											],
+											"query": [
+												{
+													"key": "search",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "role",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "per_page",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "page",
+													"value": "",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:38:58 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:38:58 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [\n            {\n                \"id\": 3,\n                \"name\": \"Employee Shahid\",\n                \"email\": \"shahid@employee.com\",\n                \"roles\": \"employee\",\n                \"created_at\": \"2025-11-15\"\n            },\n            {\n                \"id\": 2,\n                \"name\": \"Citizen Reem\",\n                \"email\": \"reem@citizen.com\",\n                \"roles\": \"citizen\",\n                \"created_at\": \"2025-11-15\"\n            },\n            {\n                \"id\": 1,\n                \"name\": \"admin abo admin\",\n                \"email\": \"admin@admin.com\",\n                \"roles\": \"admin\",\n                \"created_at\": \"2025-11-15\"\n            }\n        ],\n        \"first_page_url\": \"http://localhost:8000/api/admin/users?page=1\",\n        \"from\": 1,\n        \"last_page\": 1,\n        \"last_page_url\": \"http://localhost:8000/api/admin/users?page=1\",\n        \"links\": [\n            {\n                \"url\": null,\n                \"label\": \"&laquo; Previous\",\n                \"page\": null,\n                \"active\": false\n            },\n            {\n                \"url\": \"http://localhost:8000/api/admin/users?page=1\",\n                \"label\": \"1\",\n                \"page\": 1,\n                \"active\": true\n            },\n            {\n                \"url\": null,\n                \"label\": \"Next &raquo;\",\n                \"page\": null,\n                \"active\": false\n            }\n        ],\n        \"next_page_url\": null,\n        \"path\": \"http://localhost:8000/api/admin/users\",\n        \"per_page\": 15,\n        \"prev_page_url\": null,\n        \"to\": 3,\n        \"total\": 3\n    },\n    \"status\": 1,\n    \"message\": \"user.index\"\n}"
+								}
+							]
+						},
+						{
+							"name": "show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/users/1",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"users",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/users/1",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users",
+												"1"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "127.0.0.1:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 26 Aug 2025 11:38:24 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 26 Aug 2025 11:38:24 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Admin Abo Admin\",\n        \"phone\": null,\n        \"phone_verified_at\": null,\n        \"email\": \"admin@admin.com\",\n        \"email_verified_at\": null,\n        \"city_id\": 1,\n        \"address\": \"جانب مبنى البريد\",\n        \"gender\": \"male\",\n        \"lang\": \"ar\",\n        \"mode\": \"light\",\n        \"birth_date\": null,\n        \"profile_photo\": \"http://localhost:8000/seeder/default_male_profile.jpg\",\n        \"notification_token\": null,\n        \"mute_notification\": 0,\n        \"created_at\": \"2025-08-26T11:34:16.000000Z\",\n        \"updated_at\": \"2025-08-26T11:34:16.000000Z\",\n        \"roles\": [\n            {\n                \"id\": 1,\n                \"name\": \"admin\",\n                \"guard_name\": \"web\",\n                \"created_at\": \"2025-08-26T11:34:15.000000Z\",\n                \"updated_at\": \"2025-08-26T11:34:15.000000Z\",\n                \"pivot\": {\n                    \"model_type\": \"App\\\\Models\\\\User\",\n                    \"model_id\": 1,\n                    \"role_id\": 1\n                }\n            }\n        ],\n        \"city\": {\n            \"id\": 1,\n            \"ar_name\": \"دمشق\",\n            \"en_name\": \"Damascus\",\n            \"created_at\": \"2025-08-26T11:34:15.000000Z\",\n            \"updated_at\": \"2025-08-26T11:34:15.000000Z\",\n            \"name\": \"دمشق\"\n        }\n    },\n    \"status\": 1,\n    \"message\": \"تم العثور على المستخدم بنجاح\"\n}"
+								}
+							]
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Reem Aldarawshe",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "adminreem@admin.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "testtest",
+											"type": "text"
+										},
+										{
+											"key": "roles[]",
+											"value": "admin",
+											"description": "employee,admin,citizen",
+											"type": "text"
+										},
+										{
+											"key": "section",
+											"value": "",
+											"description": "security,finance,education",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/users/2",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"users",
+										"2"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "Reem Aldarawshe",
+													"type": "text"
+												},
+												{
+													"key": "email",
+													"value": "adminreem@admin.com",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "testtest",
+													"type": "text"
+												},
+												{
+													"key": "roles[]",
+													"value": "admin",
+													"description": "employee,admin,citizen",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/users/2",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users",
+												"2"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:41:28 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:41:28 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"Reem Aldarawshe\",\n        \"email\": \"adminreem@admin.com\",\n        \"roles\": \"admin\",\n        \"created_at\": \"2025-11-15\"\n    },\n    \"status\": 1,\n    \"message\": \"user.updated\"\n}"
+								}
+							]
+						},
+						{
+							"name": "store",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Employee Remy",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "reemy@employee.com",
+											"type": "text"
+										},
+										{
+											"key": "roles[]",
+											"value": "employee",
+											"description": "employee,admin",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "remyremy",
+											"type": "text"
+										},
+										{
+											"key": "section",
+											"value": "security",
+											"description": "security,finance,education",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/users",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"users"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "Employee Remy",
+													"type": "text"
+												},
+												{
+													"key": "email",
+													"value": "reemy@employee.com",
+													"type": "text"
+												},
+												{
+													"key": "roles[]",
+													"value": "admin",
+													"description": "employee,admin",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "remyremy",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/users",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:46:15 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:46:15 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"id\": 4,\n        \"name\": \"Employee Remy\",\n        \"email\": \"reemy@employee.com\",\n        \"roles\": \"admin\",\n        \"created_at\": \"2025-11-15\"\n    },\n    \"status\": 1,\n    \"message\": \"user.created\"\n}"
+								},
+								{
+									"name": "required",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/users",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:46:42 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:46:42 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": {\n            \"name\": [\n                \"The name field is required.\"\n            ],\n            \"email\": [\n                \"The email field is required.\"\n            ],\n            \"password\": [\n                \"The password field is required.\"\n            ]\n        }\n    },\n    \"status\": 0,\n    \"message\": \"validation.failed\"\n}"
+								},
+								{
+									"name": "unique",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "Employee Remy",
+													"type": "text"
+												},
+												{
+													"key": "email",
+													"value": "reemy@employee.com",
+													"type": "text"
+												},
+												{
+													"key": "roles[]",
+													"value": "admin",
+													"description": "employee,admin",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "remyremy",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/users",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:46:52 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:46:52 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": {\n            \"email\": [\n                \"The email has already been taken.\"\n            ]\n        }\n    },\n    \"status\": 0,\n    \"message\": \"validation.failed\"\n}"
+								},
+								{
+									"name": "section is required for employee",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "Employee Remy",
+													"type": "text"
+												},
+												{
+													"key": "email",
+													"value": "reemy@employee.com",
+													"type": "text"
+												},
+												{
+													"key": "roles[]",
+													"value": "employee",
+													"description": "employee,admin",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "remyremy",
+													"type": "text"
+												},
+												{
+													"key": "section",
+													"value": "security",
+													"description": "security,finance,education",
+													"type": "text",
+													"disabled": true
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/users",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 15:24:12 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 15:24:12 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": {\n            \"email\": [\n                \"The email has already been taken.\"\n            ],\n            \"section\": [\n                \"The section field is required.\"\n            ]\n        }\n    },\n    \"status\": 0,\n    \"message\": \"validation.failed\"\n}"
+								}
+							]
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Accept-Language",
+										"value": "ar",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/users/4",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"users",
+										"4"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "denied",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "ar",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/users/1",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users",
+												"1"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:47:06 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:47:06 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": [],\n    \"status\": 0,\n    \"message\": \"You cannot delete your own account\"\n}"
+								},
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "ar",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/users/4",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"users",
+												"4"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:47:22 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:47:22 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": true,\n    \"status\": 1,\n    \"message\": \"user.deleted\"\n}"
+								}
+							]
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Roles & Permissons",
+					"item": [
+						{
+							"name": "roles",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/roles-permissions?permissions",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"roles-permissions"
+									],
+									"query": [
+										{
+											"key": "permissions",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions?permissions",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions"
+											],
+											"query": [
+												{
+													"key": "permissions",
+													"value": null
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:49:34 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:49:34 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"admin\",\n            \"guard_name\": \"web\",\n            \"permissions\": [\n                {\n                    \"id\": 2,\n                    \"name\": \"complaint.update\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 3,\n                    \"name\": \"complaint.destroy\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 4,\n                    \"name\": \"complaint.show\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 5,\n                    \"name\": \"complaint.index\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 6,\n                    \"name\": \"user.store\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 7,\n                    \"name\": \"user.update\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 8,\n                    \"name\": \"user.destroy\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 9,\n                    \"name\": \"user.show\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 10,\n                    \"name\": \"user.index\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 11,\n                    \"name\": \"role_permission.store\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 12,\n                    \"name\": \"role_permission.update\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 13,\n                    \"name\": \"role_permission.destroy\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 14,\n                    \"name\": \"role_permission.show\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 15,\n                    \"name\": \"role_permission.index\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 16,\n                    \"name\": \"role_permission.permissions\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 17,\n                    \"name\": \"role_permission.permissions_grouped\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 18,\n                    \"name\": \"role_permission.assign_permissions\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 19,\n                    \"name\": \"role_permission.remove_permissions\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 20,\n                    \"name\": \"role_permission.available_permissions\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 21,\n                    \"name\": \"role_permission.can_delete\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 22,\n                    \"name\": \"role_permission.statistics\",\n                    \"guard_name\": \"web\"\n                }\n            ],\n            \"users_count\": 2,\n            \"created_at\": \"2025-11-15T14:27:21.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:21.000000Z\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"citizen\",\n            \"guard_name\": \"web\",\n            \"permissions\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"complaint.store\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 2,\n                    \"name\": \"complaint.update\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 4,\n                    \"name\": \"complaint.show\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 5,\n                    \"name\": \"complaint.index\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 7,\n                    \"name\": \"user.update\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 8,\n                    \"name\": \"user.destroy\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 9,\n                    \"name\": \"user.show\",\n                    \"guard_name\": \"web\"\n                }\n            ],\n            \"users_count\": 0,\n            \"created_at\": \"2025-11-15T14:27:21.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:21.000000Z\"\n        },\n        {\n            \"id\": 3,\n            \"name\": \"employee\",\n            \"guard_name\": \"web\",\n            \"permissions\": [\n                {\n                    \"id\": 2,\n                    \"name\": \"complaint.update\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 3,\n                    \"name\": \"complaint.destroy\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 4,\n                    \"name\": \"complaint.show\",\n                    \"guard_name\": \"web\"\n                },\n                {\n                    \"id\": 5,\n                    \"name\": \"complaint.index\",\n                    \"guard_name\": \"web\"\n                }\n            ],\n            \"users_count\": 1,\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        }\n    ],\n    \"status\": 1,\n    \"message\": \"role_permission.index\"\n}"
+								}
+							]
+						},
+						{
+							"name": "permissions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/roles-permissions/permissions",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"roles-permissions",
+										"permissions"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions/permissions",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions",
+												"permissions"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:50:01 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:50:01 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"complaint.store\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"complaint.update\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 3,\n            \"name\": \"complaint.destroy\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 4,\n            \"name\": \"complaint.show\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 5,\n            \"name\": \"complaint.index\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 6,\n            \"name\": \"user.store\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 7,\n            \"name\": \"user.update\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 8,\n            \"name\": \"user.destroy\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 9,\n            \"name\": \"user.show\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 10,\n            \"name\": \"user.index\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 11,\n            \"name\": \"role_permission.store\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 12,\n            \"name\": \"role_permission.update\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 13,\n            \"name\": \"role_permission.destroy\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 14,\n            \"name\": \"role_permission.show\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 15,\n            \"name\": \"role_permission.index\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 16,\n            \"name\": \"role_permission.permissions\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 17,\n            \"name\": \"role_permission.permissions_grouped\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 18,\n            \"name\": \"role_permission.assign_permissions\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 19,\n            \"name\": \"role_permission.remove_permissions\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 20,\n            \"name\": \"role_permission.available_permissions\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 21,\n            \"name\": \"role_permission.can_delete\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        },\n        {\n            \"id\": 22,\n            \"name\": \"role_permission.statistics\",\n            \"guard_name\": \"web\",\n            \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n            \"updated_at\": \"2025-11-15T14:27:22.000000Z\"\n        }\n    ],\n    \"status\": 1,\n    \"message\": \"role_permission.permissions_retrieved\"\n}"
+								}
+							]
+						},
+						{
+							"name": "store",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "employeess",
+											"type": "text"
+										},
+										{
+											"key": "permissions[]",
+											"value": "user.show",
+											"type": "text"
+										},
+										{
+											"key": "permissions[]",
+											"value": "user.destroy",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/roles-permissions",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"roles-permissions"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "employeess",
+													"type": "text"
+												},
+												{
+													"key": "permissions[]",
+													"value": "user.show",
+													"type": "text"
+												},
+												{
+													"key": "permissions[]",
+													"value": "user.destroy",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:50:40 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:50:40 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"guard_name\": \"web\",\n        \"name\": \"employeess\",\n        \"updated_at\": \"2025-11-15T14:50:40.000000Z\",\n        \"created_at\": \"2025-11-15T14:50:40.000000Z\",\n        \"id\": 4,\n        \"permissions\": [\n            {\n                \"id\": 8,\n                \"name\": \"user.destroy\",\n                \"guard_name\": \"web\",\n                \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"updated_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"pivot\": {\n                    \"role_id\": 4,\n                    \"permission_id\": 8\n                }\n            },\n            {\n                \"id\": 9,\n                \"name\": \"user.show\",\n                \"guard_name\": \"web\",\n                \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"updated_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"pivot\": {\n                    \"role_id\": 4,\n                    \"permission_id\": 9\n                }\n            }\n        ]\n    },\n    \"status\": 1,\n    \"message\": \"role_permission.created\"\n}"
+								}
+							]
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "employ",
+											"type": "text"
+										},
+										{
+											"key": "permissions[]",
+											"value": "user.show",
+											"type": "text"
+										},
+										{
+											"key": "permissions[]",
+											"value": "user.destroy",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/roles-permissions/4",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"roles-permissions",
+										"4"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "employ",
+													"type": "text"
+												},
+												{
+													"key": "permissions[]",
+													"value": "user.show",
+													"type": "text"
+												},
+												{
+													"key": "permissions[]",
+													"value": "user.destroy",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions/4",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions",
+												"4"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:51:28 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:51:28 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"id\": 4,\n        \"name\": \"employ\",\n        \"guard_name\": \"web\",\n        \"created_at\": \"2025-11-15T14:50:40.000000Z\",\n        \"updated_at\": \"2025-11-15T14:51:28.000000Z\",\n        \"permissions\": [\n            {\n                \"id\": 8,\n                \"name\": \"user.destroy\",\n                \"guard_name\": \"web\",\n                \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"updated_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"pivot\": {\n                    \"role_id\": 4,\n                    \"permission_id\": 8\n                }\n            },\n            {\n                \"id\": 9,\n                \"name\": \"user.show\",\n                \"guard_name\": \"web\",\n                \"created_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"updated_at\": \"2025-11-15T14:27:22.000000Z\",\n                \"pivot\": {\n                    \"role_id\": 4,\n                    \"permission_id\": 9\n                }\n            }\n        ]\n    },\n    \"status\": 1,\n    \"message\": \"role_permission.updated\"\n}"
+								}
+							]
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Accept-Language",
+										"value": "ar",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/roles-permissions/3",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"roles-permissions",
+										"3"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "ar",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions/4",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions",
+												"4"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:51:43 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:51:43 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"success\": true,\n        \"message\": \"Role 'employ' deleted successfully\",\n        \"deleted_role\": \"employ\"\n    },\n    \"status\": 1,\n    \"message\": \"role_permission.deleted\"\n}"
+								},
+								{
+									"name": "denied",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "ar",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions/3",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions",
+												"3"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:51:58 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:51:58 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": [],\n    \"status\": 0,\n    \"message\": \"Cannot delete role 'employee' because 1 user(s) are currently assigned to it.\"\n}"
+								}
+							]
+						},
+						{
+							"name": "can delete",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									},
+									{
+										"key": "Accept-Language",
+										"value": "ar",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/roles-permissions/3/can-delete",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"roles-permissions",
+										"3",
+										"can-delete"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "ar",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/roles-permissions/3/can-delete",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"roles-permissions",
+												"3",
+												"can-delete"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:52:10 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 14:52:10 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"can_delete\": false,\n        \"users_count\": 1,\n        \"message\": \"Cannot delete role 'employee' because 1 user(s) are currently assigned to it.\"\n    },\n    \"status\": 1,\n    \"message\": \"role_permission.delete_check_retrieved\"\n}"
+								}
+							]
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Complaint",
+					"item": [
+						{
+							"name": "index",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/complaints",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"complaints"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "per_page",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "citizen_id",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "section",
+											"value": "",
+											"description": "security,finance,education",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": null,
+											"description": "new,pending,done,rejected",
+											"disabled": true
+										},
+										{
+											"key": "start_date",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "end_date",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/complaints",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints"
+											],
+											"query": [
+												{
+													"key": "search",
+													"value": "",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 15:46:14 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 15:46:14 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [\n            {\n                \"id\": 1,\n                \"citizen_id\": 2,\n                \"type\": \"other\",\n                \"section\": \"finance\",\n                \"location\": \"Sample location 1\",\n                \"description\": \"This is a seeded complaint number 1\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"new\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 2,\n                \"citizen_id\": 2,\n                \"type\": \"noise\",\n                \"section\": \"security\",\n                \"location\": \"Sample location 2\",\n                \"description\": \"This is a seeded complaint number 2\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"pending\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 3,\n                \"citizen_id\": 2,\n                \"type\": \"garbage\",\n                \"section\": \"education\",\n                \"location\": \"Sample location 3\",\n                \"description\": \"This is a seeded complaint number 3\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"done\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 4,\n                \"citizen_id\": 2,\n                \"type\": \"other\",\n                \"section\": \"education\",\n                \"location\": \"Sample location 4\",\n                \"description\": \"This is a seeded complaint number 4\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"rejected\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 5,\n                \"citizen_id\": 2,\n                \"type\": \"garbage\",\n                \"section\": \"finance\",\n                \"location\": \"Sample location 5\",\n                \"description\": \"This is a seeded complaint number 5\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"pending\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 6,\n                \"citizen_id\": 2,\n                \"type\": \"other\",\n                \"section\": \"security\",\n                \"location\": \"Sample location 6\",\n                \"description\": \"This is a seeded complaint number 6\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"rejected\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 7,\n                \"citizen_id\": 2,\n                \"type\": \"infrastructure\",\n                \"section\": \"security\",\n                \"location\": \"Sample location 7\",\n                \"description\": \"This is a seeded complaint number 7\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"pending\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 8,\n                \"citizen_id\": 2,\n                \"type\": \"noise\",\n                \"section\": \"security\",\n                \"location\": \"Sample location 8\",\n                \"description\": \"This is a seeded complaint number 8\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"pending\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 9,\n                \"citizen_id\": 2,\n                \"type\": \"infrastructure\",\n                \"section\": \"finance\",\n                \"location\": \"Sample location 9\",\n                \"description\": \"This is a seeded complaint number 9\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"new\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            },\n            {\n                \"id\": 10,\n                \"citizen_id\": 2,\n                \"type\": \"other\",\n                \"section\": \"finance\",\n                \"location\": \"Sample location 10\",\n                \"description\": \"This is a seeded complaint number 10\",\n                \"media\": null,\n                \"serial_number\": null,\n                \"status\": \"rejected\",\n                \"notes\": null,\n                \"locked\": false,\n                \"locked_by\": null,\n                \"locked_at\": null,\n                \"created_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"updated_at\": \"2025-11-15T15:44:37.000000Z\",\n                \"histories\": [],\n                \"followups\": []\n            }\n        ],\n        \"first_page_url\": \"http://localhost:8000/api/admin/complaints?page=1\",\n        \"from\": 1,\n        \"last_page\": 1,\n        \"last_page_url\": \"http://localhost:8000/api/admin/complaints?page=1\",\n        \"links\": [\n            {\n                \"url\": null,\n                \"label\": \"&laquo; Previous\",\n                \"page\": null,\n                \"active\": false\n            },\n            {\n                \"url\": \"http://localhost:8000/api/admin/complaints?page=1\",\n                \"label\": \"1\",\n                \"page\": 1,\n                \"active\": true\n            },\n            {\n                \"url\": null,\n                \"label\": \"Next &raquo;\",\n                \"page\": null,\n                \"active\": false\n            }\n        ],\n        \"next_page_url\": null,\n        \"path\": \"http://localhost:8000/api/admin/complaints\",\n        \"per_page\": 15,\n        \"prev_page_url\": null,\n        \"to\": 10,\n        \"total\": 10\n    },\n    \"status\": 1,\n    \"message\": \"complaint.index\"\n}"
+								}
+							]
+						},
+						{
+							"name": "store",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "citizen_id",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "type",
+											"value": "noise",
+											"description": "noise,garbage,infrastructure,other",
+											"type": "text"
+										},
+										{
+											"key": "section",
+											"value": "security",
+											"description": "security,finance,education",
+											"type": "text"
+										},
+										{
+											"key": "location",
+											"value": "somewhere",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "it's very loud fireworks after 10pm",
+											"type": "text"
+										},
+										{
+											"key": "attachments[]",
+											"type": "file",
+											"src": "postman-cloud:///1ef6b68d-dfa6-4480-9e06-ba0a58c7bcd1"
+										},
+										{
+											"key": "attachments[]",
+											"type": "file",
+											"src": "postman-cloud:///1eef26f3-586e-4a70-a035-30cf17b9c37e"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/complaints",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"complaints"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "citizen_id",
+													"value": "2",
+													"type": "text"
+												},
+												{
+													"key": "type",
+													"value": "noise",
+													"description": "noise,garbage,infrastructure,other",
+													"type": "text"
+												},
+												{
+													"key": "section",
+													"value": "security",
+													"description": "security,finance,education",
+													"type": "text"
+												},
+												{
+													"key": "location",
+													"value": "somewhere",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "it's very loud fireworks after 10pm",
+													"type": "text"
+												},
+												{
+													"key": "attachments[]",
+													"type": "file",
+													"src": "postman-cloud:///1ef6b68d-dfa6-4480-9e06-ba0a58c7bcd1"
+												},
+												{
+													"key": "attachments[]",
+													"type": "file",
+													"src": "postman-cloud:///1eef26f3-586e-4a70-a035-30cf17b9c37e"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/complaints",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:08:39 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:08:39 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"citizen_id\": 1,\n        \"type\": \"noise\",\n        \"section\": \"security\",\n        \"location\": \"somewhere\",\n        \"description\": \"it's very loud fireworks after 10pm\",\n        \"attachments\": [\n            \"http://localhost:8000/api/storage/8/img-3.jpg\",\n            \"http://localhost:8000/api/storage/9/تقرير-إنجاز-الأعمال-1-(1).pdf\"\n        ],\n        \"serial_number\": \"CMP-20251115-000013\",\n        \"updated_at\": \"2025-11-15T16:08:39.000000Z\",\n        \"created_at\": \"2025-11-15T16:08:39.000000Z\",\n        \"id\": 13\n    },\n    \"status\": 1,\n    \"message\": \"complaint.created\"\n}"
+								},
+								{
+									"name": "required",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/complaints",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints"
+											]
+										}
+									},
+									"status": "Unprocessable Content",
+									"code": 422,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:08:59 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:08:59 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"error_messages\": {\n            \"citizen_id\": [\n                \"The citizen id field is required.\"\n            ],\n            \"type\": [\n                \"The type field is required.\"\n            ],\n            \"section\": [\n                \"The section field is required.\"\n            ],\n            \"location\": [\n                \"The location field is required.\"\n            ],\n            \"description\": [\n                \"The description field is required.\"\n            ]\n        }\n    },\n    \"status\": 0,\n    \"message\": \"validation.failed\"\n}"
+								}
+							]
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "type",
+											"value": "noise",
+											"type": "text"
+										},
+										{
+											"key": "section",
+											"value": "security",
+											"type": "text"
+										},
+										{
+											"key": "location",
+											"value": "somewhere",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "it's very loud fireworks after 10pm",
+											"type": "text"
+										},
+										{
+											"key": "attachments[]",
+											"type": "file",
+											"src": "postman-cloud:///1ef4a826-8a43-42d0-90ab-8672ecd8becc"
+										},
+										{
+											"key": "status",
+											"value": "pending",
+											"type": "text"
+										},
+										{
+											"key": "notes",
+											"value": "this complaint needs some files",
+											"type": "text"
+										},
+										{
+											"key": "followups[0][title]",
+											"value": "Image or recording file of the recurring incident",
+											"type": "text"
+										},
+										{
+											"key": "followups[0][description]",
+											"value": "the image must be vivid",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{domain}}/admin/complaints/3",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"complaints",
+										"3"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "not found",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "type",
+													"value": "noise",
+													"type": "text"
+												},
+												{
+													"key": "section",
+													"value": "security",
+													"type": "text"
+												},
+												{
+													"key": "location",
+													"value": "somewhere",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "it's very loud fireworks after 10pm",
+													"type": "text"
+												},
+												{
+													"key": "attachments[]",
+													"type": "file",
+													"src": "postman-cloud:///1ef4a826-8a43-42d0-90ab-8672ecd8becc"
+												},
+												{
+													"key": "status",
+													"value": "pending",
+													"type": "text"
+												},
+												{
+													"key": "notes",
+													"value": "this complaint needs some files",
+													"type": "text"
+												},
+												{
+													"key": "followup[0][title]",
+													"value": "Image or recording file of the recurring incident",
+													"type": "text"
+												},
+												{
+													"key": "followup[0][description]",
+													"value": "the image must be vivid",
+													"type": "text"
+												},
+												{
+													"key": "title",
+													"value": "a follow up request ",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/complaints/43",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints",
+												"43"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:12:11 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:12:11 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": [],\n    \"status\": 0,\n    \"message\": \"Complaint not found.\"\n}"
+								},
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "type",
+													"value": "noise",
+													"type": "text"
+												},
+												{
+													"key": "section",
+													"value": "security",
+													"type": "text"
+												},
+												{
+													"key": "location",
+													"value": "somewhere",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "it's very loud fireworks after 10pm",
+													"type": "text"
+												},
+												{
+													"key": "attachments[]",
+													"type": "file",
+													"src": "postman-cloud:///1ef4a826-8a43-42d0-90ab-8672ecd8becc"
+												},
+												{
+													"key": "status",
+													"value": "pending",
+													"type": "text"
+												},
+												{
+													"key": "notes",
+													"value": "this complaint needs some files",
+													"type": "text"
+												},
+												{
+													"key": "followups[0][title]",
+													"value": "Image or recording file of the recurring incident",
+													"type": "text"
+												},
+												{
+													"key": "followups[0][description]",
+													"value": "the image must be vivid",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{domain}}/admin/complaints/3",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints",
+												"3"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:17:50 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:17:50 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"id\": 3,\n        \"citizen_id\": 2,\n        \"type\": \"noise\",\n        \"section\": \"security\",\n        \"location\": \"somewhere\",\n        \"description\": \"it's very loud fireworks after 10pm\",\n        \"attachments\": [\n            \"http://localhost:8000/api/storage/11/2.png\"\n        ],\n        \"serial_number\": null,\n        \"status\": \"pending\",\n        \"notes\": \"this complaint needs some files\",\n        \"locked\": false,\n        \"locked_by\": null,\n        \"locked_at\": null,\n        \"created_at\": \"2025-11-15T16:05:44.000000Z\",\n        \"updated_at\": \"2025-11-15T16:17:40.000000Z\",\n        \"histories\": [\n            {\n                \"id\": 4,\n                \"complaint_id\": 3,\n                \"employee_id\": 1,\n                \"followup_id\": 2,\n                \"status\": \"pending\",\n                \"notes\": \"this complaint needs some files\",\n                \"title\": \"Updated Complaint\",\n                \"created_at\": \"2025-11-15T16:17:40.000000Z\",\n                \"updated_at\": \"2025-11-15T16:17:40.000000Z\"\n            }\n        ],\n        \"followups\": [\n            {\n                \"id\": 2,\n                \"complaint_id\": 3,\n                \"title\": \"Image or recording file of the recurring incident\",\n                \"description\": \"the image must be vivid\",\n                \"media\": null,\n                \"requested_by\": 1,\n                \"status\": \"requested\",\n                \"created_at\": \"2025-11-15T16:17:40.000000Z\",\n                \"updated_at\": \"2025-11-15T16:17:40.000000Z\"\n            }\n        ]\n    },\n    \"status\": 1,\n    \"message\": \"complaint.updated\"\n}"
+								}
+							]
+						},
+						{
+							"name": "show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/complaints/4",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"complaints",
+										"4"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/complaints/4",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints",
+												"4"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:19:05 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:19:05 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"id\": 4,\n        \"citizen_id\": 2,\n        \"type\": \"garbage\",\n        \"section\": \"education\",\n        \"location\": \"Sample location 4\",\n        \"description\": \"This is a seeded complaint number 4\",\n        \"attachments\": null,\n        \"serial_number\": null,\n        \"status\": \"new\",\n        \"notes\": null,\n        \"locked\": false,\n        \"locked_by\": null,\n        \"locked_at\": null,\n        \"created_at\": \"2025-11-15T16:05:44.000000Z\",\n        \"updated_at\": \"2025-11-15T16:18:51.000000Z\",\n        \"histories\": [\n            {\n                \"id\": 5,\n                \"complaint_id\": 4,\n                \"employee_id\": 1,\n                \"followup_id\": null,\n                \"status\": \"new\",\n                \"notes\": null,\n                \"title\": \"Updated Complaint\",\n                \"created_at\": \"2025-11-15T16:18:51.000000Z\",\n                \"updated_at\": \"2025-11-15T16:18:51.000000Z\"\n            }\n        ],\n        \"followups\": []\n    },\n    \"status\": 1,\n    \"message\": \"complaint.updated\"\n}"
+								}
+							]
+						},
+						{
+							"name": "stats",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/complaints/1/stats",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"complaints",
+										"1",
+										"stats"
+									],
+									"query": [
+										{
+											"key": "start_date",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "end_date",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/complaints/1/stats",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints",
+												"1",
+												"stats"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:20:43 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:20:43 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"rejected\": 3,\n        \"pending\": 2,\n        \"new\": 7,\n        \"done\": 1\n    },\n    \"status\": 1,\n    \"message\": \"complaint.stats\"\n}"
+								}
+							]
+						},
+						{
+							"name": "export",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/admin/complaints/1/export",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"admin",
+										"complaints",
+										"1",
+										"export"
+									],
+									"query": [
+										{
+											"key": "start_date",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "end_date",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{domain}}/admin/complaints/1/export",
+											"host": [
+												"{{domain}}"
+											],
+											"path": [
+												"admin",
+												"complaints",
+												"1",
+												"export"
+											],
+											"query": [
+												{
+													"key": "start_date",
+													"value": null,
+													"disabled": true
+												},
+												{
+													"key": "end_date",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:22:02 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Nov 2025 16:22:02 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.2.9"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "public"
+										},
+										{
+											"key": "Last-Modified",
+											"value": "Sat, 15 Nov 2025 16:22:02 GMT"
+										},
+										{
+											"key": "Content-Disposition",
+											"value": "attachment; filename=complaints_export_1763223722.csv"
+										},
+										{
+											"key": "Content-Type",
+											"value": "text/csv; charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "721"
+										},
+										{
+											"key": "Accept-Ranges",
+											"value": "none"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "Serial,Citizen,Type,Section,Status,Created\n,2,noise,finance,rejected,\"2025-11-15 16:05:44\"\n,2,noise,finance,rejected,\"2025-11-15 16:05:44\"\n,2,noise,security,pending,\"2025-11-15 16:05:44\"\n,2,garbage,education,new,\"2025-11-15 16:05:44\"\n,2,infrastructure,finance,new,\"2025-11-15 16:05:44\"\n,2,infrastructure,security,done,\"2025-11-15 16:05:44\"\n,2,noise,security,rejected,\"2025-11-15 16:05:44\"\n,2,noise,security,pending,\"2025-11-15 16:05:44\"\n,2,other,finance,new,\"2025-11-15 16:05:44\"\n,2,infrastructure,finance,new,\"2025-11-15 16:05:44\"\nCMP-20251115-000011,1,noise,security,new,\"2025-11-15 16:05:53\"\nCMP-20251115-000012,1,noise,security,new,\"2025-11-15 16:08:31\"\nCMP-20251115-000013,1,noise,security,new,\"2025-11-15 16:08:39\"\n"
+								}
+							]
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{admin_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
