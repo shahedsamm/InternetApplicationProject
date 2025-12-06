@@ -1,7 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Requests\Citizen\RegisterRequest;
+use App\Http\Requests\Citizen\VerifyCitizenRequest;
+use App\Http\Requests\Citizen\ResendOtpRequest;
+use App\Http\Requests\Citizen\LoginCitizenRequest;
+use App\Http\Requests\Citizen\LogoutRequest;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use App\Services\AuthCitizenService;
 use Illuminate\Http\Request;
 
@@ -14,31 +20,42 @@ class CitizenController extends Controller
         $this->service = $service;
     }
 
-    // تسجيل مواطن جديد + إرسال OTP
-    public function register(Request $request)
+  public function register(RegisterRequest $request)
     {
-        $result = $this->service->registerCitizen($request->all());
-        return response()->json($result, $result['status'] ? 201 : 422);
-    }
+        // ⭐ استخدم الـ Service فقط
+        $response = $this->service->registerCitizen($request->validated());
 
-    // التحقق من OTP
-    public function verifyOtp(Request $request)
-    {
-        $result = $this->service->verifyOtp($request->all());
-        return response()->json($result, $result['status'] ? 200 : 400);
+        return response()->json($response, $response['status'] ? 201 : 400);
     }
+   public function verifyOtp(VerifyCitizenRequest $request)
+{
+    $data = $request->validated();
 
-    // إعادة إرسال OTP
-    public function resendOtp(Request $request)
-    {
-        $result = $this->service->resendOtp($request->all());
-        return response()->json($result, $result['status'] ? 200 : 400);
-    }
+    return response()->json(
+        $this->service->verifyOtp($data['user_id'], $data['otp_code'])
+    );
+}
 
-    // تسجيل دخول المواطن
-    public function login(Request $request)
-    {
-        $result = $this->service->loginCitizen($request->all());
-        return response()->json($result, $result['status'] ? 200 : 422);
-    }
+
+public function resendOtp(ResendOtpRequest $request)
+{
+    return $this->service->resendOtp($request->email);
+}
+
+public function login(LoginCitizenRequest $request)
+{
+    return $this->service->loginCitizen(
+        $request->email,
+        $request->password
+    );
+}
+
+public function logout(LogoutRequest $request)
+{
+    $response = $this->service->logout();
+
+    return response()->json($response);
+}
+
+   
 }

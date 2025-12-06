@@ -20,25 +20,21 @@ class RoleAndPermissionSeeder extends Seeder
     public function run(): void
     {
         // Create roles
-        $adminRole = Role::query()->firstOrCreate(['name' => 'admin']);
-        $citizenRole = Role::query()->firstOrCreate(['name' => 'citizen']);
-        $employeeRole = Role::query()->firstOrCreate(['name' => 'employee']);
+$adminRole = Role::query()->firstOrCreate(['name' => 'admin']);
+$citizenRole = Role::query()->firstOrCreate(['name' => 'citizen']);
+$employeeRole = Role::query()->firstOrCreate(['name' => 'employee']);
 
         // Define permissions
         $permissions = [
             //Admin Permissions
             'complaint.store', 'complaint.update', 'complaint.destroy', 'complaint.show', 'complaint.index', 'complaint.export', 'complaint.stats',
-            'user.store', 'user.update', 'user.destroy', 'user.show', 'user.index',
+            'user.store', 'user.update', 'user.destroy', 'user.show', 'user.index','citizen.complaint.create',
+    'citizen.complaint.update','citizen.complaint.delete','citizen.complaint.list',
+    'citizen.complaint.attachments', 'citizen.profile.update','citizen.profile.logout',
             'role_permission.store', 'role_permission.update', 'role_permission.destroy', 'role_permission.show', 'role_permission.index',
             'role_permission.permissions', 'role_permission.permissions_grouped', 'role_permission.assign_permissions', 'role_permission.remove_permissions',
             'role_permission.available_permissions', 'role_permission.can_delete', 'role_permission.statistics',
-     //Citizen Permissions
-     'citizen.complaint.create',
-    'citizen.complaint.update',
-    'citizen.complaint.show',
-    'citizen.complaint.list',
-    'citizen.complaint.attachments',
-    'citizen.profile.update',
+     
 
         ];
 
@@ -62,17 +58,15 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
 
        $citizenRole->syncPermissions([
-    'citizen.complaint.create',
-    'citizen.complaint.update',
-    'citizen.complaint.show',
-    'citizen.complaint.list',
-    'citizen.complaint.attachments',
-    'citizen.profile.update',
+    'citizen.complaint.create','citizen.complaint.update','citizen.complaint.delete',
+     'citizen.complaint.list','citizen.complaint.attachments', 'citizen.profile.logout',
+    
 ]);
 
 
         $employeeRole->syncPermissions([
             //Employee Permissions
+             'complaint.store',
             'complaint.update', 'complaint.destroy', 'complaint.show', 'complaint.index',
         ]);
 
@@ -109,7 +103,8 @@ class RoleAndPermissionSeeder extends Seeder
         $citizenUser = User::query()->create([
             'name' => ' Reem',
         'phone'=>'+9639922882679',
-            'email' => 'reem@citizen.com',
+            'email' => 'reem@gmail.com',
+             'password' => bcrypt('123456'),
             'email_verified_at' => Carbon::now(),
         ]);
         try {
@@ -135,14 +130,15 @@ class RoleAndPermissionSeeder extends Seeder
         $employeeUser = User::query()->create([
             'name' => ' Shahid',
             'phone'=>'+963954537163',
-            'email' => 'shahid@employee.com',
+            'email' => 'shahid@gmail.com',
             'email_verified_at' => Carbon::now(),
             'password' => bcrypt('shahidshahid'),
         ]);
 
         $employeeUser->assignRole($employeeRole);
-        $permissions = $employeeRole->permissions()->pluck('name')->toArray();
-        $employeeRole->givePermissionTo($permissions);
+
+$permissions = $employeeRole->permissions()->pluck('name')->toArray();
+$employeeUser->givePermissionTo($permissions); // ✅ الصحيح
 
         try {
             $media = $employeeUser->addMedia(public_path('/seeder/client_profile_female.jpg'))

@@ -48,13 +48,22 @@ class UserController extends Controller
                 $user,
                 __('user.created')
             );
-        } catch (Throwable $e) {
-            activity('Error: Admin User Store')->log($e);
-            return Response::Error(
-                [],
-                __('user.create_error')
-            );
-        }
+        // catch (Throwable $e) {
+        //     activity('Error: Admin User Store')->log($e);
+        //     return Response::Error(
+        //         [],
+        //         __('user.create_error')
+        //     );
+        // }
+         } catch (Throwable $e) {
+
+    return response()->json([
+        'status' => 0,
+        'message' => $e->getMessage(),   // ✅ اطبع الخطأ الحقيقي
+        'line'    => $e->getLine(),
+        'file'    => $e->getFile(),
+    ], 500);
+}
     }
 
     public function show(User $user): JsonResponse

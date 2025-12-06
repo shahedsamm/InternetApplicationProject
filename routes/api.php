@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\CitizenController;
@@ -25,7 +26,6 @@ Route::prefix('admin')
                 Route::post('logout', 'logout')
                     ->name('admin.logout')
                     ->middleware('can:admin.logout');
-
         });
 
         Route::controller(UserController::class)
@@ -131,11 +131,43 @@ Route::prefix('admin')
     });
 
  //citizen
-
  Route::post('/citizen/register', [CitizenController::class, 'register']);
-Route::post('/citizen/verify-otp', [CitizenController::class, 'verifyOtp']);
+Route::post('/citizen/verify-otp', [CitizenController::class, 'verifyotp']);
 Route::post('/citizen/resend-otp', [CitizenController::class, 'resendOtp']);
 Route::post('/citizen/login', [CitizenController::class, 'login']);
 
+Route::prefix('citizen')
+    ->middleware(['auth:sanctum'])
+    ->group(function () {
+        // إدارة الشكاوى من Citizen
+        Route::controller(ComplaintController::class)
+            ->prefix('complaints')
+            ->group(function () {
+        Route::post('/store', 'storeComplaint');
+        Route::post('put/{id}', [ComplaintController::class, 'updateComplaint'])
+            ->middleware('can:citizen.complaint.update');
+        Route::delete('delete/{id}', [ComplaintController::class, 'deleteComplaint'])
+             ->middleware('can:citizen.complaint.delete');
+        Route::get('/list', [ComplaintController::class, 'listComplaints'])
+             ->middleware('can:citizen.complaint.list');
+        Route::get('/track', [ComplaintController::class, 'trackComplaint']);
+                      });
+                      
+    Route::post('/logout', [CitizenController::class, 'logout'])
+            ->middleware('can:citizen.profile.logout');
+
+ 
+
+  });
+
+  Route::post('/employee/login', [EmployeController::class, 'login']);
+
+ 
+   Route::get('/employee/department/complaints', [EmployeController::class, 'departmentComplaints'])
+             ->middleware(['auth:sanctum', 'can:complaint.index']);
+
+              Route::post('/employee/complaints/update-status', [EmployeController::class, 'updateStatus'])
+             ->middleware('can:complaint.update');
 
 
+             

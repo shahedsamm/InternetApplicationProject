@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('phone')->unique();
+            $table->string('phone')->nullable();
             $table->boolean('blocked')->default(false);
             $table->string('email')->unique();
             $table->timestamp('blocked_until')->nullable();

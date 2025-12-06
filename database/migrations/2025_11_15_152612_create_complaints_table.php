@@ -17,12 +17,12 @@ return new class extends Migration
             $table->enum('type', ['noise', 'garbage', 'infrastructure', 'other']);
             $table->enum('section', ['security', 'finance', 'education']);
             $table->text('location');
+            $table->string('national_id')->index();
             $table->text('description');
-            $table->json('attachments')->nullable(); // quick JSON for media metadata; we also attach via Spatie
+            $table->json('attachments')->nullable(); 
             $table->string('serial_number')->unique()->nullable();
             $table->enum('status', ['new','pending','done','rejected'])->default('new');
             $table->text('notes')->nullable();
-            // locking fields
             $table->boolean('locked')->default(false);
             $table->foreignId('locked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('locked_at')->nullable();

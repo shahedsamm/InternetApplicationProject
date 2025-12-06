@@ -13,6 +13,8 @@ class Complaint extends Model implements HasMedia
     use InteractsWithMedia;
 
     protected $guarded = [];
+    
+
 
     protected $casts = [
         'attachments' => 'array',
@@ -53,6 +55,10 @@ class Complaint extends Model implements HasMedia
     public function followups(): HasMany
     {
         return $this->hasMany(ComplaintFollowup::class);
+    }
+     public function updateHistories()
+    {
+        return $this->hasMany(ComplaintUpdateHistory::class); // بدل الاسم حسب جدولك
     }
 
 }

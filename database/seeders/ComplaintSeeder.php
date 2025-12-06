@@ -23,6 +23,7 @@ class ComplaintSeeder extends Seeder
             $c = Complaint::create([
                 'citizen_id' => $citizen->id,
                 'type' => Arr::random($types),
+                'national_id'=>'1401005247896',
                 'section' => Arr::random($sections),
                 'location' => 'Sample location ' . ($i+1),
                 'description' => 'This is a seeded complaint number ' . ($i+1),

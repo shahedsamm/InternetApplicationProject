@@ -17,7 +17,7 @@
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-image-optimizer": "^1.8",
         "spatie/laravel-medialibrary": "^11.13",
-        "spatie/laravel-permission": "*",
+        "spatie/laravel-permission": "^6.23",
         "symfony/css-selector": "^7.3",
         "symfony/dom-crawler": "^7.3"
     },

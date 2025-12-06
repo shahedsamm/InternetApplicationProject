@@ -15,12 +15,14 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
 {
     use HasFactory, Notifiable, HasRoles, InteractsWithMedia, HasApiTokens;
 
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'phone',
         'otp_code',
+         'section',
         'otp_expires_at',
     'no_failed_tries',
     ];
@@ -37,4 +39,10 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
             'password' => 'hashed',
         ];
     }
+
+    public function sessions ()
+{
+    return $this->belongsTo(sessions::class);
+}
+
 }

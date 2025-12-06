@@ -18,4 +18,9 @@ class ComplaintFollowup extends Model
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
+    public function editor()
+{
+    return $this->belongsTo(User::class, 'requested_by');
+}
+
 }
