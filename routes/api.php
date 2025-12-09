@@ -151,23 +151,16 @@ Route::prefix('citizen')
         Route::get('/list', [ComplaintController::class, 'listComplaints'])
              ->middleware('can:citizen.complaint.list');
         Route::get('/track', [ComplaintController::class, 'trackComplaint']);
-                      });
-                      
+                      });  
     Route::post('/logout', [CitizenController::class, 'logout'])
             ->middleware('can:citizen.profile.logout');
-
- 
-
   });
 
   Route::post('/employee/login', [EmployeController::class, 'login']);
-
- 
    Route::get('/employee/department/complaints', [EmployeController::class, 'departmentComplaints'])
              ->middleware(['auth:sanctum', 'can:complaint.index']);
-
-              Route::post('/employee/complaints/update-status', [EmployeController::class, 'updateStatus'])
-             ->middleware('can:complaint.update');
+Route::post('/employee/complaints/update-status', [EmployeController::class, 'updateStatus'])
+            ->middleware(['auth:sanctum', 'can:complaint.update']);
 
 
              

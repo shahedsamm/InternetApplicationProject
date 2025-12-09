@@ -16,9 +16,8 @@ class UpdateComplaintStatusRequest extends FormRequest
         return [
             'complaint_id' => 'required|exists:complaints,id',
             'status'       => 'required|in:new,pending,done,rejected',
-            'title'        => 'required|string|max:255',
             'notes'        => 'nullable|string',
-            'followup_id'  => 'nullable|exists:complaint_followups,id',
+            
         ];
     }
 }

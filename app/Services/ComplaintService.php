@@ -298,19 +298,27 @@ if (!empty($data['attachments'])) {
 }
 
 
-    
-     public function listComplaints($citizen)
+   public function listComplaints($citizen)
 {
-    $complaints = Complaint::with(['followups' => function ($q) {
-        $q->latest();
-    }])
+    $complaints = Complaint::with([
+        // ✅ آخر تعديل من المواطن (اختياري)
+        'followups' => function ($q) {
+            $q->latest()->limit(1);
+        },
+
+        // ✅ آخر ملاحظة من الموظف
+        'updateHistories' => function ($q) {
+            $q->latest()->limit(1);
+        }
+    ])
     ->where('citizen_id', $citizen->id)
     ->orderBy('created_at', 'desc')
     ->get();
 
     $result = $complaints->map(function ($complaint) {
 
-        $original = [
+        // ✅ البيانات الأساسية الحالية
+        $final = [
             'type'        => $complaint->type,
             'section'     => $complaint->section,
             'location'    => $complaint->location,
@@ -318,33 +326,26 @@ if (!empty($data['attachments'])) {
             'status'      => $complaint->status,
         ];
 
-        // ✅ نسخة افتراضية = الأصل
-        $after = $original;
-
-        $updatedBy = null;
-        $updatedAt = null;
-
-        // ✅ إذا وجد تعديل
+        // ✅ إذا في تعديل من المواطن → نطبقه عرضًا فقط
         if ($complaint->followups->count()) {
-
             $latestFollowup = $complaint->followups->first();
             $changes = json_decode($latestFollowup->description, true);
 
-            // ✅ نطبق التعديلات على نسخة "after"
             foreach ($changes as $field => $change) {
-                $after[$field] = $change['new'];
+                $final[$field] = $change['new'];
             }
-
-            $updatedBy = $latestFollowup->requested_by;
-            $updatedAt = $latestFollowup->created_at;
         }
 
+        // ✅ آخر ملاحظة من الموظف
+        $lastHistory = $complaint->updateHistories->first();
+
         return [
-            'id'            => $complaint->id,
-            // 'before_update'=> $original,
-            'after_update' => $after,
-            // 'updated_by'   => $updatedBy,
-            'updated_at'   => $updatedAt,
+            'id'                 => $complaint->id,
+            'serial_number'      => $complaint->serial_number,
+            'complaint'          => $final, // ✅ الشكوى النهائية
+            'last_employee_note'=> $lastHistory?->notes, // ✅ ملاحظة الموظف
+            'employee_status'   => $lastHistory?->status ?? $complaint->status,
+            'updated_at'        => optional($lastHistory)->created_at?->format('Y-m-d H:i'),
         ];
     });
 
@@ -353,6 +354,7 @@ if (!empty($data['attachments'])) {
         'complaints' => $result
     ];
 }
+
 
 
 

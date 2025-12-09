@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\AuthController;
 use App\Http\Requests\Employee\LoginEmployeeRequest;
 use App\Http\Requests\Employee\UpdateComplaintStatusRequest;
 use App\Services\EmployeeAuthService;
+use Illuminate\Support\Facades\Auth;
+
 use App\Services\EmployeeComplaintService;
 
 

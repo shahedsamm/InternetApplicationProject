@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('complaint_id')->constrained('complaints')->cascadeOnDelete();
             $table->foreignId('employee_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('followup_id')->nullable()->constrained('complaint_followups')->nullOnDelete();
             $table->enum('status', ['new','pending','done','rejected']);
             $table->text('notes')->nullable();
-            $table->string('title'); // what was updated this time
             $table->timestamps();
         });
     }

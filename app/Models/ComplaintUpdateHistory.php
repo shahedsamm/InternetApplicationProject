@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ComplaintUpdateHistory extends Model
 {
     protected $fillable = [
-        'complaint_id','employee_id','followup_id','status','notes','title'
+        'complaint_id','employee_id','followup_id','status','notes',
     ];
 
     public function complaint(): BelongsTo

@@ -4,8 +4,9 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Complaint;
-
+use App\Models\ComplaintUpdateHistory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeAuthService
 {
@@ -110,9 +111,13 @@ class EmployeeAuthService
     ];
 }
 
-    public function updateStatus($employee, $data)
-    {
-        $complaint = Complaint::find($data['complaint_id']);
+ public function updateStatus($employee, $data)
+{
+    DB::beginTransaction();
+
+    try {
+        // ✅ جلب الشكوى مع قفل على مستوى قاعدة البيانات
+        $complaint = Complaint::lockForUpdate()->find($data['complaint_id']);
 
         if (!$complaint) {
             return [
@@ -121,7 +126,28 @@ class EmployeeAuthService
             ];
         }
 
-        // ✅ تحديث حالة الشكوى الأساسية فقط
+        // ✅ التحقق أن الموظف من نفس القسم
+        if ($complaint->section !== $employee->section) {
+            return [
+                'status' => false,
+                'message' => 'لا يسمح لك بتعديل شكوى من قسم آخر.'
+            ];
+        }
+
+        // ✅ التحقق من وجود قفل من موظف آخر
+        if ($complaint->locked_by && $complaint->locked_by !== $employee->id) {
+            return [
+                'status' => false,
+                'message' => 'الشكوى قيد المعالجة من موظف آخر حالياً.'
+            ];
+        }
+
+        // ✅ وضع القفل لهذا الموظف
+        $complaint->locked_by = $employee->id;
+        $complaint->locked_at = now();
+        $complaint->save();
+
+        // ✅ تحديث الحالة
         $complaint->status = $data['status'];
         $complaint->save();
 
@@ -129,11 +155,16 @@ class EmployeeAuthService
         $history = ComplaintUpdateHistory::create([
             'complaint_id' => $complaint->id,
             'employee_id'  => $employee->id,
-            'followup_id'  => $data['followup_id'] ?? null,
             'status'       => $data['status'],
-            'title'        => $data['title'],
             'notes'        => $data['notes'] ?? null,
         ]);
+
+        // ✅ فك القفل بعد الانتهاء
+        $complaint->locked_by = null;
+        $complaint->locked_at = null;
+        $complaint->save();
+
+        DB::commit();
 
         return [
             'status'  => true,
@@ -144,6 +175,16 @@ class EmployeeAuthService
                 'history'     => $history
             ]
         ];
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return [
+            'status' => false,
+            'message' => 'حدث خطأ أثناء تحديث الشكوى',
+            'error' => $e->getMessage()
+        ];
     }
 
+}
 }
