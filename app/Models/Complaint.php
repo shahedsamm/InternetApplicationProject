@@ -56,9 +56,11 @@ class Complaint extends Model implements HasMedia
     {
         return $this->hasMany(ComplaintFollowup::class);
     }
+
      public function updateHistories()
     {
         return $this->hasMany(ComplaintUpdateHistory::class); // بدل الاسم حسب جدولك
     }
+    
 
 }

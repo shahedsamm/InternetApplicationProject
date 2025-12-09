@@ -111,80 +111,86 @@ class EmployeeAuthService
     ];
 }
 
+
+
  public function updateStatus($employee, $data)
 {
-    DB::beginTransaction();
-
-    try {
-        // ✅ جلب الشكوى مع قفل على مستوى قاعدة البيانات
-        $complaint = Complaint::lockForUpdate()->find($data['complaint_id']);
-
-        if (!$complaint) {
-            return [
-                'status' => false,
-                'message' => 'الشكوى غير موجودة.'
-            ];
-        }
-
-        // ✅ التحقق أن الموظف من نفس القسم
-        if ($complaint->section !== $employee->section) {
-            return [
-                'status' => false,
-                'message' => 'لا يسمح لك بتعديل شكوى من قسم آخر.'
-            ];
-        }
-
-        // ✅ التحقق من وجود قفل من موظف آخر
-        if ($complaint->locked_by && $complaint->locked_by !== $employee->id) {
-            return [
-                'status' => false,
-                'message' => 'الشكوى قيد المعالجة من موظف آخر حالياً.'
-            ];
-        }
-
-        // ✅ وضع القفل لهذا الموظف
-        $complaint->locked_by = $employee->id;
-        $complaint->locked_at = now();
-        $complaint->save();
-
-        // ✅ تحديث الحالة
-        $complaint->status = $data['status'];
-        $complaint->save();
-
-        // ✅ حفظ السجل في history
-        $history = ComplaintUpdateHistory::create([
-            'complaint_id' => $complaint->id,
-            'employee_id'  => $employee->id,
-            'status'       => $data['status'],
-            'notes'        => $data['notes'] ?? null,
+    // ✅ 1️⃣ فك الأقفال المنتهية
+    Complaint::whereNotNull('locked_by')
+        ->where('locked_at', '<=', now()->subMinutes(10))
+        ->update([
+            'locked_by' => null,
+            'locked_at' => null,
         ]);
 
-        // ✅ فك القفل بعد الانتهاء
-        $complaint->locked_by = null;
-        $complaint->locked_at = null;
-        $complaint->save();
+    // ✅ 2️⃣ جلب الشكوى
+    $complaint = Complaint::find($data['complaint_id']);
 
-        DB::commit();
-
-        return [
-            'status'  => true,
-            'message' => 'تم تحديث حالة الشكوى بنجاح.',
-            'data'    => [
-                'complaint_id' => $complaint->id,
-                'new_status'  => $complaint->status,
-                'history'     => $history
-            ]
-        ];
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
+    if (!$complaint) {
         return [
             'status' => false,
-            'message' => 'حدث خطأ أثناء تحديث الشكوى',
-            'error' => $e->getMessage()
+            'message' => 'الشكوى غير موجودة.'
         ];
     }
 
+    // ✅ 3️⃣ نفس القسم
+    if ($complaint->section !== $employee->section) {
+        return [
+            'status' => false,
+            'message' => 'لا يمكنك التعديل على شكوى من قسم آخر.'
+        ];
+    }
+
+    // ✅ 4️⃣ التحقق من القفل
+    if (
+        $complaint->locked_by !== null &&
+        $complaint->locked_by !== $employee->id &&
+        $complaint->locked_at > now()->subMinutes(10)
+    ) {
+        return [
+            'status' => false,
+            'message' => 'الشكوى مقفولة حالياً من قبل موظف آخر.'
+        ];
+    }
+
+    // ✅ 5️⃣ قفل الشكوى
+    $complaint->locked_by = $employee->id;
+    $complaint->locked_at = now();
+
+    // ✅ 6️⃣ تحديث الحالة
+    $complaint->status = $data['status'];
+    $complaint->save();
+
+    // ✅ 7️⃣ حفظ سجل التعديل
+    $history = ComplaintUpdateHistory::create([
+        'complaint_id' => $complaint->id,
+        'employee_id'  => $employee->id,
+        'status'       => $data['status'],
+        'notes'        => $data['notes'] ?? null,
+    ]);
+
+    // ✅ 8️⃣ جلب المواطن صاحب الشكوى
+    $citizen = User::find($complaint->user_id); // أو $complaint->citizen_id حسب جدولك
+
+    if ($citizen && $citizen->fcm_token) {
+        // ✅ إرسال الإشعار
+        $this->sendFirebaseNotification(
+            $citizen->fcm_token,
+            'تم تعديل الشكوى ✅',
+            'تم تعديل حالة شكواك رقم: ' . $complaint->serial_number
+        );
+    }
+
+    return [
+        'status'  => true,
+        'message' => 'تم تحديث حالة الشكوى بنجاح.',
+        'data'    => [
+            'complaint_id'  => $complaint->id,
+            'new_status'   => $complaint->status,
+            'locked_until' => now()->addMinutes(10)->format('Y-m-d H:i:s'),
+            'history'      => $history
+        ]
+    ];
 }
+
 }

@@ -25,7 +25,8 @@ return new class extends Migration
             $table->unsignedInteger('no_failed_tries')->default(0);
             $table->date('last_failed_try_date')->nullable();
             $table->string('otp_code')->nullable(); 
-            $table->timestamp('otp_expires_at')->nullable();  
+            $table->timestamp('otp_expires_at')->nullable(); 
+             $table->text('fcm_token')->nullable(); 
             $table->rememberToken();
             $table->timestamps();
         });

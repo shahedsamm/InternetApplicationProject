@@ -21,6 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         'email',
         'password',
         'phone',
+        'fcm_token',
         'otp_code',
          'section',
         'otp_expires_at',
@@ -46,3 +47,4 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
 }
 
 }
+
