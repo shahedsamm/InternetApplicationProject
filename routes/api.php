@@ -152,9 +152,12 @@ Route::prefix('citizen')
         Route::get('/list', [ComplaintController::class, 'listComplaints'])
              ->middleware('can:citizen.complaint.list');
         Route::get('/track', [ComplaintController::class, 'trackComplaint']);
+        
+     Route::get('/details/{id}', [ComplaintController::class, 'showComplaint']);
                       });  
     Route::post('/logout', [CitizenController::class, 'logout'])
             ->middleware('can:citizen.profile.logout');
+
   });
 
   Route::post('/employee/login', [EmployeController::class, 'login']);

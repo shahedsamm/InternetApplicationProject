@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Helpers\DateHelper;
 use App\Models\Complaint;
+use App\Helpers\LogHelper;
 use App\Models\ComplaintUpdateHistory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +94,9 @@ class EmployeeAuthService
         $finalLocation    = $changes['location']['new'] ?? $c->location;
     }
 
+    // ✅ تسجيل عملية العرض
+    LogHelper::complaint('viewed', $c);
+
     return [
         'serial_number' => $c->serial_number,
         'type'          => $finalType,
@@ -100,9 +105,19 @@ class EmployeeAuthService
         'section'       => $c->section,
         'status'        => $lastEmployeeUpdate?->status ?? $c->status,
         'last_employee_note' => $lastEmployeeUpdate?->notes,
+        'created_at'    => DateHelper::arabicDate($c->created_at),
         'updated_at'    => optional($lastEmployeeUpdate ?? $lastCitizenUpdate)->created_at?->format('Y-m-d H:i'),
+        'attachments'   => $c->media->map(function ($m) {
+            return [
+                'file_name' => $m->file_name,
+                'url'       => url("storage/{$m->id}/{$m->file_name}"),
+                'size'      => $m->size,
+                'mime_type' => $m->mime_type,
+            ];
+        }),
     ];
 });
+
 
 
     return [
@@ -180,6 +195,13 @@ class EmployeeAuthService
             'تم تعديل حالة شكواك رقم: ' . $complaint->serial_number
         );
     }
+
+
+$changes = [
+    'before_status' => $complaint->getOriginal('status'), // الحالة قبل التعديل
+    'after_status'  => $data['status'], // الحالة بعد التعديل
+];
+LogHelper::complaint('status_changed', $complaint, $changes);
 
     return [
         'status'  => true,

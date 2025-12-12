@@ -61,6 +61,23 @@ class Complaint extends Model implements HasMedia
     {
         return $this->hasMany(ComplaintUpdateHistory::class); // بدل الاسم حسب جدولك
     }
+   public function getAttachmentsUrls()
+{
+    return $this->media->map(function ($media) {
+        return [
+            'file_name' => $media->file_name,
+            'url' => url("storage/{$media->id}/{$media->file_name}"),
+            'size' => $media->size,
+            'mime_type' => $media->mime_type,
+        ];
+    });
+}
+
+public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
+
     
 
 }

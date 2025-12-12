@@ -4,7 +4,8 @@ namespace App\Services;
 use App\Models\Complaint;
 use App\Models\ComplaintUpdateHistory;
 use App\Models\ComplaintFollowup;
-
+use App\Helpers\DateHelper;
+use App\Helpers\LogHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
@@ -212,17 +213,27 @@ class ComplaintService
             $media = $complaint->addMedia($file)
                 ->toMediaCollection('attachments');
 
-            // حفظ اسم الملف فقط
             $uploadedFileNames[] = $media->file_name;
         }
     }
+    LogHelper::complaint('create', $complaint);
 
     return [
         'status'    => true,
-        'complaint' => $complaint,
-        // 'files'     => $uploadedFileNames, // ⬅ هنا اسماء الملفات
+        'complaint' => [
+            'id'          => $complaint->id,
+            'serial'      => $complaint->serial_number,
+            'type'        => $complaint->type,
+            'section'     => $complaint->section,
+            'location'    => $complaint->location,
+            'description' => $complaint->description,
+            'status'      => $complaint->status,
+            'created_at'  => DateHelper::arabicDate($complaint->created_at),
+        ],
+       
     ];
 }
+
 
 
 public function updateComplaint($citizen, $complaintId, $data)
@@ -278,74 +289,101 @@ if (!empty($data['attachments'])) {
     }
 }
 
+// ✅ نسخة "بعد التعديل" للعرض فقط
+$after = $originalData;
+foreach ($changes as $key => $val) {
+    $after[$key] = $val['new'];
+}
 
-    // ✅ نسخة "بعد التعديل" للعرض فقط
-    $after = $originalData;
-    foreach ($changes as $key => $val) {
-        $after[$key] = $val['new'];
-    }
+$complaintFull = $complaint->toArray();
+foreach ($after as $key => $val) {
+    $complaintFull[$key] = $val;
+}
 
-    $complaintFull = $complaint->toArray();
-    foreach ($after as $key => $val) {
-        $complaintFull[$key] = $val;
-    }
+// 🔥 إزالة الحقول غير المرغوب فيها
+$hiddenFields = ['attachments', 'notes', 'locked', 'locked_by', 'locked_at', 'attachment'];
+foreach ($hiddenFields as $field) {
+    unset($complaintFull[$field]);
+}
 
-    return [
-        'status'  => true,
-        'message' => 'تم حفظ طلب التعديل بنجاح.',
-        'complaint_after' => $complaintFull,
-    ];
+// 🔥 تنسيق created_at
+$complaintFull['created_at'] = \App\Helpers\DateHelper::arabicDate($complaint->created_at);
+
+// 🔥 تسجيل التغيير
+$logChanges = [
+    'before' => [
+        'type' => $complaint->type,
+        'description' => $complaint->description,
+        'location' => $complaint->location,
+    ],
+    'after' => [
+        'type' => $data['type'] ?? $complaint->type,
+        'description' => $data['description'] ?? $complaint->description,
+        'location' => $data['location'] ?? $complaint->location,
+    ]
+];
+
+LogHelper::complaint('updated', $complaint, $logChanges);
+
+return [
+    'status'  => true,
+    'message' => 'تم حفظ طلب التعديل بنجاح.',
+    'complaint_after' => $complaintFull,
+];
+
+
 }
 
 
-   public function listComplaints($citizen)
+   
+    public function listComplaints($citizen)
 {
     $complaints = Complaint::with([
-        // ✅ آخر تعديل من المواطن (اختياري)
-        'followups' => function ($q) {
-            $q->latest()->limit(1);
-        },
-
-        // ✅ آخر ملاحظة من الموظف
-        'updateHistories' => function ($q) {
-            $q->latest()->limit(1);
-        }
+        'followups' => fn($q) => $q->latest()->limit(1),
+        'updateHistories' => fn($q) => $q->latest()->limit(1)
     ])
     ->where('citizen_id', $citizen->id)
     ->orderBy('created_at', 'desc')
     ->get();
-
+  // ✅ إذا لم يكن لدى المواطن أي شكوى
+    if ($complaints->isEmpty()) {
+        return [
+            'status' => true,
+            'message' => 'لا يوجد شكاوى حالياً',
+           
+        ];
+    }
     $result = $complaints->map(function ($complaint) {
 
-        // ✅ البيانات الأساسية الحالية
         $final = [
             'type'        => $complaint->type,
             'section'     => $complaint->section,
             'location'    => $complaint->location,
             'description' => $complaint->description,
             'status'      => $complaint->status,
+            'created_at'  => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
         ];
 
-        // ✅ إذا في تعديل من المواطن → نطبقه عرضًا فقط
         if ($complaint->followups->count()) {
             $latestFollowup = $complaint->followups->first();
             $changes = json_decode($latestFollowup->description, true);
-
             foreach ($changes as $field => $change) {
                 $final[$field] = $change['new'];
             }
         }
 
-        // ✅ آخر ملاحظة من الموظف
+        // تسجيل السجل
+        LogHelper::complaint('viewed', $complaint);
+
         $lastHistory = $complaint->updateHistories->first();
 
         return [
             'id'                 => $complaint->id,
             'serial_number'      => $complaint->serial_number,
-            'complaint'          => $final, // ✅ الشكوى النهائية
-            'last_employee_note'=> $lastHistory?->notes, // ✅ ملاحظة الموظف
-            'employee_status'   => $lastHistory?->status ?? $complaint->status,
-            'updated_at'        => optional($lastHistory)->created_at?->format('Y-m-d H:i'),
+            'complaint'          => $final,
+            'last_employee_note' => $lastHistory?->notes,
+            'employee_status'    => $lastHistory?->status ?? $complaint->status,
+            'updated_at'         => optional($lastHistory)->created_at?->format('Y-m-d H:i'),
         ];
     });
 
@@ -355,9 +393,62 @@ if (!empty($data['attachments'])) {
     ];
 }
 
+   
+
+ public function getComplaintDetails($id, $citizenId)
+{
+    $complaint = Complaint::where('id', $id)
+        ->where('citizen_id', $citizenId)
+        ->firstOrFail();
+
+    // تسجيل عملية العرض
+    LogHelper::complaint('viewed', $complaint);
+
+    return [
+        'status' => true,
+        'data' => [
+            'id'          => $complaint->id,
+            'serial_number'=> $complaint->serial_number,
+            'type'        => $complaint->type,
+            'section'     => $complaint->section,
+            'location'    => $complaint->location,
+            'description' => $complaint->description,
+            'status'      => $complaint->status,
+            'created_at'  => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
+        ]
+    ];
+}
 
 
+    
+public function deleteComplaint($citizen, $complaintId)
+{
+    $complaint = Complaint::where('id', $complaintId)
+        ->where('citizen_id', $citizen->id)
+        ->first();
 
+    if (!$complaint) {
+        return [
+            'status' => false,
+            'message' => 'الشكوى غير موجودة أو لا تملك صلاحية لحذفها.'
+        ];
+    }
+
+    // حذف المرفقات
+    if ($complaint->hasMedia('attachments')) {
+        $complaint->clearMediaCollection('attachments');
+    }
+
+    // تسجيل السجل قبل الحذف
+    LogHelper::complaint('deleted', $complaint);
+
+    $complaint->delete();
+
+    return [
+        'status'  => true,
+        'message' => 'تم حذف الشكوى بنجاح.'
+    ];
+}
 
 public function trackComplaint($serial, $userId)
 {
@@ -399,8 +490,6 @@ public function trackComplaint($serial, $userId)
         ]
     ];
 }
-
- 
 
 
 }

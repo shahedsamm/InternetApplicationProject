@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('complaints', function (Blueprint $table) {
             $table->id();
             $table->foreignId('citizen_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('type', ['noise', 'garbage', 'infrastructure', 'other']);
-            $table->enum('section', ['security', 'finance', 'education']);
+             $table->string('type')->nullable();
+            $table->enum('section', ['كهربا','مياه','اتصالات','وزارة الصحة','وزارة التربية']);
             $table->text('location');
             $table->string('national_id')->index();
             $table->text('description');
@@ -26,6 +26,8 @@ return new class extends Migration
             $table->boolean('locked')->default(false);
             $table->foreignId('locked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('locked_at')->nullable();
+             $table->charset = 'utf8mb4';
+             $table->collation = 'utf8mb4_unicode_ci';
             $table->timestamps();
         });
     }

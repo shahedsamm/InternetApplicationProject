@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('profile_photo')->nullable();
-            $table->enum('section', ['security', 'education', 'finance'])->nullable();
+            $table->enum('section', ['كهربا','مياه','اتصالات','وزارة الصحة','وزارة التربية'])->nullable();;
             $table->unsignedInteger('no_failed_tries')->default(0);
             $table->date('last_failed_try_date')->nullable();
             $table->string('otp_code')->nullable(); 

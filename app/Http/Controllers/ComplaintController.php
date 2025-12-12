@@ -11,6 +11,8 @@ use App\Http\Requests\Citizen\UpdateComplaintRequest;
 use App\Http\Requests\Citizen\TrackComplaintRequest;
 use App\Http\Requests\Complaint\StatsRequest;
 use App\Http\Responses\Response;
+use App\Helpers\DateHelper;
+use App\Models\Complaint;
 use Illuminate\Support\Facades\Validator;
 use App\Services\ComplaintService;
 use Illuminate\Http\JsonResponse;
@@ -144,7 +146,29 @@ public function trackComplaint(TrackComplaintRequest $request)
     return response()->json($result);
 }
 
+  
 
+    public function showComplaint($id)
+{
+    $complaint = Complaint::with('media') // مهم جداً
+        ->findOrFail($id);
 
-    
+    return [
+        'status' => true,
+        'data' => [
+            'id'            => $complaint->id,
+            'citizen_id'    => $complaint->citizen_id,
+            'type'          => $complaint->type,
+            'section'       => $complaint->section,
+            'location'      => $complaint->location,
+            'national_id'   => $complaint->national_id,
+            'description'   => $complaint->description,
+            'serial_number' => $complaint->serial_number,
+            'status'        => $complaint->status,
+           'created_at' =>DateHelper::arabicDate($complaint->created_at),
+            'attachments'   => $complaint->getAttachmentsUrls(),
+        ],
+    ];
+}
+
 }
