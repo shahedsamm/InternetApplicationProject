@@ -8,6 +8,6 @@ class DateHelper
     {
         if (!$date) return null;
 
-        return $date->format('d/m/Y - h:i A');
+        return $date->format('d/m/Y ');
     }
 }

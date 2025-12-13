@@ -14,8 +14,8 @@ class UpdateComplaintRequest extends FormRequest
     public function rules()
     {
         return [
-            'type'        => 'sometimes|in:noise,garbage,infrastructure,other',
-              'section'     => 'required|in:كهربا,مياه,اتصالات,وزارة الصحة,وزارة التربية',
+              'type'        => 'required|string',
+            'section'     => 'required|in:وزارةالكهربا,وزارةالمياه ,وزارةالاتصالات,وزارةالصحة,وزارةالتربية',
             'location'    => 'sometimes|string',
             'description' => 'sometimes|string',
 

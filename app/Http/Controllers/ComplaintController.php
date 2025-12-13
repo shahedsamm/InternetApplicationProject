@@ -147,11 +147,12 @@ public function trackComplaint(TrackComplaintRequest $request)
 }
 
   
-
-    public function showComplaint($id)
+public function showComplaint($id)
 {
-    $complaint = Complaint::with('media') // مهم جداً
-        ->findOrFail($id);
+    $complaint = Complaint::with([
+        'media',
+        'updateHistories.employee'
+    ])->findOrFail($id);
 
     return [
         'status' => true,
@@ -165,9 +166,24 @@ public function trackComplaint(TrackComplaintRequest $request)
             'description'   => $complaint->description,
             'serial_number' => $complaint->serial_number,
             'status'        => $complaint->status,
-           'created_at' =>DateHelper::arabicDate($complaint->created_at),
-            'attachments'   => $complaint->getAttachmentsUrls(),
-        ],
+            'created_at'    => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
+
+            // ⭐ الملفات
+            'attachments' => $complaint->getAttachmentsUrls(),
+
+            // ⭐ جميع ملاحظات الموظف المسؤول
+            'employee_notes' => $complaint->updateHistories->map(function ($h) {
+                return [
+                    'status'     => $h->status,
+                    'notes'      => $h->notes,
+                    'employee'   => $h->employee?->name,
+                    'created_at' => $h->created_at->format('Y-m-d '),
+                ];
+            }),
+
+            // ⭐ آخر ملاحظة فقط
+            'last_employee_note' => optional($complaint->updateHistories->first())->notes,
+        ]
     ];
 }
 

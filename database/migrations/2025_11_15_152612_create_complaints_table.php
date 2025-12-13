@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('citizen_id')->constrained('users')->cascadeOnDelete();
              $table->string('type')->nullable();
-            $table->enum('section', ['كهربا','مياه','اتصالات','وزارة الصحة','وزارة التربية']);
+            $table->enum('section', ['وزارةالكهربا','وزارةالمياه','وزارةالاتصالات','وزارةالصحة','وزارةالتربية']);
             $table->text('location');
             $table->string('national_id')->index();
             $table->text('description');

@@ -25,4 +25,6 @@ class ComplaintUpdateHistory extends Model
     {
         return $this->belongsTo(ComplaintFollowup::class);
     }
+    
+
 }

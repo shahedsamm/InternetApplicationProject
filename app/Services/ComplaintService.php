@@ -383,7 +383,7 @@ return [
             'complaint'          => $final,
             'last_employee_note' => $lastHistory?->notes,
             'employee_status'    => $lastHistory?->status ?? $complaint->status,
-            'updated_at'         => optional($lastHistory)->created_at?->format('Y-m-d H:i'),
+            'updated_at'         => optional($lastHistory)->created_at?->format('Y-m-d '),
         ];
     });
 
@@ -394,61 +394,53 @@ return [
 }
 
    
-
- public function getComplaintDetails($id, $citizenId)
+public function getComplaintDetails($id, $citizenId)
 {
-    $complaint = Complaint::where('id', $id)
-        ->where('citizen_id', $citizenId)
-        ->firstOrFail();
+    $complaint = Complaint::with([
+        'media',
+        'updateHistories.employee'
+    ])
+    ->where('id', $id)
+    ->where('citizen_id', $citizenId)
+    ->firstOrFail();
 
-    // تسجيل عملية العرض
+    // سجل عملية العرض
     LogHelper::complaint('viewed', $complaint);
 
     return [
         'status' => true,
         'data' => [
-            'id'          => $complaint->id,
-            'serial_number'=> $complaint->serial_number,
-            'type'        => $complaint->type,
-            'section'     => $complaint->section,
-            'location'    => $complaint->location,
-            'description' => $complaint->description,
-            'status'      => $complaint->status,
-            'created_at'  => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
+            'id'            => $complaint->id,
+            'citizen_id'    => $complaint->citizen_id,
+            'type'          => $complaint->type,
+            'section'       => $complaint->section,
+            'location'      => $complaint->location,
+            'national_id'   => $complaint->national_id,
+            'description'   => $complaint->description,
+            'serial_number' => $complaint->serial_number,
+            'status'        => $complaint->status,
+            'created_at'    => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
+
+            // ⭐ الملفات
+            'attachments' => $complaint->getAttachmentsUrls(),
+
+            // ⭐ جميع ملاحظات الموظفين
+            'employee_notes' => $complaint->updateHistories->map(function ($h) {
+                return [
+                    'status'     => $h->status,
+                    'notes'      => $h->notes,
+                    'employee'   => $h->employee?->name,
+                    'created_at' => $h->created_at->format('Y-m-d '),
+                ];
+            }),
+
+            // ⭐ آخر ملاحظة فقط
+            'last_employee_note' => optional($complaint->updateHistories->first())->notes,
         ]
     ];
 }
 
 
-    
-public function deleteComplaint($citizen, $complaintId)
-{
-    $complaint = Complaint::where('id', $complaintId)
-        ->where('citizen_id', $citizen->id)
-        ->first();
-
-    if (!$complaint) {
-        return [
-            'status' => false,
-            'message' => 'الشكوى غير موجودة أو لا تملك صلاحية لحذفها.'
-        ];
-    }
-
-    // حذف المرفقات
-    if ($complaint->hasMedia('attachments')) {
-        $complaint->clearMediaCollection('attachments');
-    }
-
-    // تسجيل السجل قبل الحذف
-    LogHelper::complaint('deleted', $complaint);
-
-    $complaint->delete();
-
-    return [
-        'status'  => true,
-        'message' => 'تم حذف الشكوى بنجاح.'
-    ];
-}
 
 public function trackComplaint($serial, $userId)
 {
@@ -488,6 +480,35 @@ public function trackComplaint($serial, $userId)
             ],
             'last_admin_note' => $lastHistory ? $lastHistory->notes : null,
         ]
+    ];
+}
+public function deleteComplaint($citizen, $complaintId)
+{
+    $complaint = Complaint::where('id', $complaintId)
+        ->where('citizen_id', $citizen->id)
+        ->first();
+
+    if (!$complaint) {
+        return [
+            'status' => false,
+            'message' => 'الشكوى غير موجودة أو لا تملك صلاحية لحذفها.'
+        ];
+    }
+
+    // حذف المرفقات إذا موجودة
+    if ($complaint->hasMedia('attachments')) {
+        $complaint->clearMediaCollection('attachments');
+    }
+
+    // تسجيل عملية الحذف
+    LogHelper::complaint('deleted', $complaint);
+
+    // حذف الشكوى
+    $complaint->delete();
+
+    return [
+        'status' => true,
+        'message' => 'تم حذف الشكوى بنجاح.'
     ];
 }
 

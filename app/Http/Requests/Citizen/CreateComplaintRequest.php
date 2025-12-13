@@ -15,7 +15,7 @@ class CreateComplaintRequest extends FormRequest
     {
         return [
             'type'        => 'required|string',
-            'section'     => 'required|in:كهربا,مياه,اتصالات,وزارة الصحة,وزارة التربية',
+            'section'     => 'required|in:وزارةالكهربا,وزارةالمياه ,وزارةالاتصالات,وزارةالصحة,وزارةالتربية',
             'location'    => 'required|string',
             'description' => 'required|string',
 
@@ -31,7 +31,7 @@ class CreateComplaintRequest extends FormRequest
     public function messages()
     {
         return [
-            'section.in' => 'القسم يجب أن يكون أحد: كهربا، مياه، اتصالات، وزارة الصحة، وزارة التربية.',
+            'section.in' => 'القسم يجب أن يكون أحد: وزارة الكهربا، وزارة المياه، وزارة الاتصالات، وزارة الصحة، وزارة التربية.',
             'national_id.regex' => 'الرقم الوطني يجب أن يبدأ بـ 140100 متبوعاً بخمس أرقام.',
             'attachments.*.file' => 'كل مرفق يجب أن يكون ملف صالح.',
             'attachments.*.mimes' => 'نوع الملف يجب أن يكون jpg, jpeg, png, pdf, doc, docx, xlsx, أو txt.',

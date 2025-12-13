@@ -18,7 +18,7 @@ class StoreRequest extends BaseFormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-'section' => 'required|in:كهربا,مياه,اتصالات,وزارة الصحة,وزارة التربية',
+  'section' => 'required|in:وزارةالكهربا,وزارةالمياه ,وزارةالاتصالات,وزارةالصحة,وزارةالتربية',
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', 'exists:roles,name'],
 

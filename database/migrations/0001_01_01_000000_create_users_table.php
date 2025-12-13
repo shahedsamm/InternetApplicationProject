@@ -21,10 +21,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('profile_photo')->nullable();
-            $table->enum('section', ['كهربا','مياه','اتصالات','وزارة الصحة','وزارة التربية'])->nullable();;
+           $table->enum('section', ['وزارةالكهربا','وزارةالمياه','وزارةالاتصالات','وزارةالصحة','وزارةالتربية'])->nullable();
             $table->unsignedInteger('no_failed_tries')->default(0);
             $table->date('last_failed_try_date')->nullable();
             $table->string('otp_code')->nullable(); 
+              $table->charset = 'utf8mb4';
+             $table->collation = 'utf8mb4_unicode_ci';
             $table->timestamp('otp_expires_at')->nullable(); 
              $table->text('fcm_token')->nullable(); 
             $table->rememberToken();
