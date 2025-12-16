@@ -18,8 +18,9 @@ class NotificationService
 
     public function send($user, $title, $message, $type = 'basic')
     {
-        // Path to the service account key JSON file
-        $serviceAccountPath = storage_path('app/awa-v2-8636d2ae5593.json');
+       
+
+        $serviceAccountPath = storage_path('app/firebase.json');
 
         // Initialize the Firebase Factory with the service account
         $factory = (new Factory)->withServiceAccount($serviceAccountPath);

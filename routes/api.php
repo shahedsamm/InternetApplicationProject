@@ -5,7 +5,6 @@ use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\CitizenController;
-use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -165,7 +164,7 @@ Route::prefix('citizen')
              ->middleware(['auth:sanctum', 'can:complaint.index']);
 Route::post('/employee/complaints/update-status', [EmployeController::class, 'updateStatus'])
             ->middleware(['auth:sanctum', 'can:complaint.update']);
-Route::post('/save-fcm-token', [FirebaseController::class, 'saveToken'])
+Route::post('/save-fcm-token', [CitizenController::class, 'storeFcmToken'])
     ->middleware('auth:sanctum');
 
 

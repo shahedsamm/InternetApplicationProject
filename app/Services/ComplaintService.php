@@ -339,6 +339,7 @@ return [
     public function listComplaints($citizen)
 {
     $complaints = Complaint::with([
+           'media',
         'followups' => fn($q) => $q->latest()->limit(1),
         'updateHistories' => fn($q) => $q->latest()->limit(1)
     ])
@@ -358,10 +359,12 @@ return [
         $final = [
             'type'        => $complaint->type,
             'section'     => $complaint->section,
+             'serial_number'      => $complaint->serial_number,
             'location'    => $complaint->location,
             'description' => $complaint->description,
             'status'      => $complaint->status,
             'created_at'  => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
+               'attachments' => $complaint->getAttachmentsUrls(),
         ];
 
         if ($complaint->followups->count()) {
@@ -379,7 +382,7 @@ return [
 
         return [
             'id'                 => $complaint->id,
-            'serial_number'      => $complaint->serial_number,
+           
             'complaint'          => $final,
             'last_employee_note' => $lastHistory?->notes,
             'employee_status'    => $lastHistory?->status ?? $complaint->status,
@@ -393,52 +396,85 @@ return [
     ];
 }
 
-   
-public function getComplaintDetails($id, $citizenId)
-{
-    $complaint = Complaint::with([
-        'media',
-        'updateHistories.employee'
-    ])
-    ->where('id', $id)
-    ->where('citizen_id', $citizenId)
-    ->firstOrFail();
 
-    // سجل عملية العرض
-    LogHelper::complaint('viewed', $complaint);
 
-    return [
-        'status' => true,
-        'data' => [
-            'id'            => $complaint->id,
-            'citizen_id'    => $complaint->citizen_id,
-            'type'          => $complaint->type,
-            'section'       => $complaint->section,
-            'location'      => $complaint->location,
-            'national_id'   => $complaint->national_id,
-            'description'   => $complaint->description,
-            'serial_number' => $complaint->serial_number,
-            'status'        => $complaint->status,
-            'created_at'    => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
 
-            // ⭐ الملفات
-            'attachments' => $complaint->getAttachmentsUrls(),
 
-            // ⭐ جميع ملاحظات الموظفين
-            'employee_notes' => $complaint->updateHistories->map(function ($h) {
-                return [
-                    'status'     => $h->status,
-                    'notes'      => $h->notes,
-                    'employee'   => $h->employee?->name,
-                    'created_at' => $h->created_at->format('Y-m-d '),
-                ];
-            }),
 
-            // ⭐ آخر ملاحظة فقط
-            'last_employee_note' => optional($complaint->updateHistories->first())->notes,
-        ]
-    ];
-}
+
+
+
+// public function getComplaintDetails($id, $citizenId)
+// {
+//     $complaint = Complaint::with([
+//         'media',
+//         'followups' => fn ($q) => $q->latest(),
+//         'updateHistories.employee',
+//     ])
+//     ->where('id', $id)
+//     ->where('citizen_id', $citizenId)
+//     ->firstOrFail();
+
+//     LogHelper::complaint('viewed', $complaint);
+
+//     // ✅ البيانات الأصلية
+//     $final = [
+//         'type'        => $complaint->type,
+//         'section'     => $complaint->section,
+//         'location'    => $complaint->location,
+//         'description' => $complaint->description,
+//         'national_id' => $complaint->national_id,
+//         'status'      => $complaint->status,
+//     ];
+
+//     // ✅ تطبيق آخر تعديل من المواطن
+//     $latestFollowup = $complaint->followups->first();
+
+//     if ($latestFollowup && $latestFollowup->description) {
+//         $changes = json_decode($latestFollowup->description, true);
+
+//         if (is_array($changes)) {
+//             foreach ($changes as $field => $change) {
+//                 if (array_key_exists($field, $final) && isset($change['new'])) {
+//                     $final[$field] = $change['new'];
+//                 }
+//             }
+//         }
+//     }
+
+//     // ✅ آخر ملاحظة موظف
+//     $lastHistory = $complaint->updateHistories->first();
+
+//     return [
+//         'status' => true,
+//         'data' => [
+//             'id'            => $complaint->id,
+//             'citizen_id'    => $complaint->citizen_id,
+//             'serial_number' => $complaint->serial_number,
+//             'created_at'    => \App\Helpers\DateHelper::arabicDate($complaint->created_at),
+
+//             // 🔥 الشكوى بعد التعديل
+//             'complaint' => $final,
+
+//             // 📎 المرفقات
+//             'attachments' => $complaint->getAttachmentsUrls(),
+
+//             // 📝 ملاحظات الموظفين
+//             'employee_notes' => $complaint->updateHistories->map(fn ($h) => [
+//                 'status'     => $h->status,
+//                 'notes'      => $h->notes,
+//                 'employee'   => $h->employee?->name,
+//                 'created_at' => $h->created_at->format('Y-m-d'),
+//             ]),
+
+//             'last_employee_note' => $lastHistory?->notes,
+//         ]
+//     ];
+// }
+
+
+
+
 
 
 
@@ -454,6 +490,7 @@ public function trackComplaint($serial, $userId)
             'code' => 404,
             'message' => 'الشكوى غير موجودة.',
             'data' => null
+
         ];
     }
 

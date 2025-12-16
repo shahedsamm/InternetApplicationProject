@@ -48,8 +48,7 @@ $employeeRole = Role::query()->firstOrCreate(['name' => 'employee']);
 
         // Assign permissions to roles
         $adminRole->syncPermissions([
-            'complaint.store',//test only
-            'complaint.update', 'complaint.destroy', 'complaint.show', 'complaint.index',  'complaint.export', 'complaint.stats',
+             'complaint.destroy', 'complaint.show', 'complaint.index',  'complaint.export', 'complaint.stats',
             'user.store', 'user.update', 'user.destroy', 'user.show', 'user.index',
             'role_permission.store', 'role_permission.update', 'role_permission.destroy', 'role_permission.show', 'role_permission.index',
             'role_permission.permissions', 'role_permission.permissions_grouped', 'role_permission.assign_permissions', 'role_permission.remove_permissions',

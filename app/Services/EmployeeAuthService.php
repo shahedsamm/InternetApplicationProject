@@ -9,9 +9,17 @@ use App\Helpers\LogHelper;
 use App\Models\ComplaintUpdateHistory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\ComplaintStatusUpdated;
+use App\Services\NotificationService;
+
 
 class EmployeeAuthService
 {
+
+     public function __construct(
+        protected NotificationService $notificationService
+    ){}
+
     public function login(array $data)
     {
         // البحث عن المستخدم بالإيميل
@@ -184,18 +192,28 @@ class EmployeeAuthService
         'notes'        => $data['notes'] ?? null,
     ]);
 
-    // ✅ 8️⃣ جلب المواطن صاحب الشكوى
-    $citizen = User::find($complaint->user_id); // أو $complaint->citizen_id حسب جدولك
+   $citizen = $complaint->citizen;
+// أو $complaint->citizen_id حسب جدولك
 
     if ($citizen && $citizen->fcm_token) {
-        // ✅ إرسال الإشعار
-        $this->sendFirebaseNotification(
-            $citizen->fcm_token,
-            'تم تعديل الشكوى ✅',
-            'تم تعديل حالة شكواك رقم: ' . $complaint->serial_number
-        );
-    }
+    $this->notificationService->send(
+        $citizen,
+        'تم تعديل الشكوى ✅',
+        'تم تعديل حالة شكواك رقم: ' . $complaint->serial_number,
+        'complaint_status'
+    );
+}
 
+if ($citizen) {
+    // 🔔 تخزين الإشعار في جدول notifications
+    $citizen->notify(
+        new ComplaintStatusUpdated(
+            $complaint,
+            $employee,
+            $data['status']
+        )
+    );
+}
 
 $changes = [
     'before_status' => $complaint->getOriginal('status'), // الحالة قبل التعديل
@@ -209,7 +227,7 @@ LogHelper::complaint('status_changed', $complaint, $changes);
         'data'    => [
             'complaint_id'  => $complaint->id,
             'new_status'   => $complaint->status,
-            'locked_until' => now()->addMinutes(10)->format('Y-m-d H:i:s'),
+            'locked_until' => now()->addMinutes(10)->format('Y-m-d '),
             'history'      => $history
         ]
     ];

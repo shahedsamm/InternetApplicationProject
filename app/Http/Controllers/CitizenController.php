@@ -8,6 +8,7 @@ use App\Http\Requests\Citizen\LoginCitizenRequest;
 use App\Http\Requests\Citizen\LogoutRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Http\Requests\SaveFcmTokenRequest;
 use App\Services\AuthCitizenService;
 use Illuminate\Http\Request;
 
@@ -57,5 +58,18 @@ public function logout(LogoutRequest $request)
     return response()->json($response);
 }
 
+
+function storeFcmToken(SaveFcmTokenRequest $request)
+{
+    $user = auth()->user();
+
+    $user->fcm_token = $request->fcm_token;
+    $user->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'تم حفظ التوكن بنجاح'
+    ]);
+}
    
 }

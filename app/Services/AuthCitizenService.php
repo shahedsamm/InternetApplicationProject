@@ -3,6 +3,7 @@
 namespace App\Services;
 use Spatie\Permission\Models\Role;
 use App\Jobs\SendOtpEmailJob;
+use App\Jobs\SendAccountBlockedEmailJob;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -41,50 +42,67 @@ class AuthCitizenService
 
 public function verifyOtp($userId, $otpCode)
 {
-    // الحصول على المستخدم
-    $user = User::where('id', $userId)->first();
+    // 1️⃣ جلب المستخدم
+    $user = User::find($userId);
 
     if (!$user) {
-        return ['status' => false, 'message' => 'المستخدم غير موجود.'];
+        return [
+            'status' => false,
+            'message' => 'المستخدم غير موجود.'
+        ];
     }
 
-    // حساب مقفول
+    // 2️⃣ الحساب مقفول حالياً
     if ($user->blocked_until && now()->lessThan($user->blocked_until)) {
-        return ['status' => false, 'message' => 'تم قفل الحساب لمدة 10 دقائق بسبب كثرة المحاولات.'];
+        return [
+            'status' => false,
+            'message' => 'تم قفل الحساب لمدة 10 دقائق بسبب كثرة المحاولات.'
+        ];
     }
 
-    // انتهاء الصلاحية
+    // 3️⃣ انتهاء صلاحية الكود
     if (!$user->otp_expires_at || now()->greaterThan($user->otp_expires_at)) {
-        return ['status' => false, 'message' => 'انتهت صلاحية كود التحقق.'];
+        return [
+            'status' => false,
+            'message' => 'انتهت صلاحية كود التحقق.'
+        ];
     }
 
-    // كود خطأ
+    // 4️⃣ كود التحقق خاطئ
     if ($user->otp_code != $otpCode) {
 
         $user->no_failed_tries++;
 
-        if ($user->no_failed_tries >= 3) {
-            $user->blocked_until = now()->addMinutes(10);
+        // 🔒 قفل الحساب بعد 3 محاولات + إرسال إيميل مرة واحدة
+        if ($user->no_failed_tries >= 3 && !$user->blocked) {
+
             $user->blocked = true;
+            $user->blocked_until = now()->addMinutes(10);
+
+            // 📧 إرسال الإيميل
+            SendAccountBlockedEmailJob::dispatch($user->email);
         }
 
         $user->last_failed_try_date = now();
         $user->save();
 
-        return ['status' => false, 'message' => 'كود التحقق غير صحيح.'];
+        return [
+            'status' => false,
+            'message' => 'كود التحقق غير صحيح.'
+        ];
     }
 
-    // نجاح التحقق
+    // 5️⃣ نجاح التحقق
     $user->email_verified_at = now();
     $user->otp_code = null;
     $user->otp_expires_at = null;
     $user->no_failed_tries = 0;
-    $user->blocked_until = null;
     $user->blocked = false;
+    $user->blocked_until = null;
     $user->last_failed_try_date = null;
     $user->save();
 
-    // 🔥 توليد التوكن
+    // 🔑 توليد التوكن
     $token = $user->createToken('CitizenToken')->plainTextToken;
 
     return [
@@ -99,8 +117,6 @@ public function verifyOtp($userId, $otpCode)
         ]
     ];
 }
-
-
    
 
 
