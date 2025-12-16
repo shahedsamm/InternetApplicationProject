@@ -350,6 +350,7 @@ return [
     if ($complaints->isEmpty()) {
         return [
             'status' => true,
+             'date'=>[],
             'message' => 'لا يوجد شكاوى حالياً',
            
         ];
@@ -392,6 +393,7 @@ return [
 
     return [
         'status'     => true,
+       
         'complaints' => $result
     ];
 }
