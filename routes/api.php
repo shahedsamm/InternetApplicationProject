@@ -148,8 +148,8 @@ Route::prefix('citizen')
             ->middleware('can:citizen.complaint.update');
         Route::delete('delete/{id}', [ComplaintController::class, 'deleteComplaint'])
              ->middleware('can:citizen.complaint.delete');
-        Route::get('/list', [ComplaintController::class, 'listComplaints'])
-             ->middleware('can:citizen.complaint.list');
+        Route::get('/list', [ComplaintController::class, 'listComplaints']);
+            //  ->middleware('can:citizen.complaint.list');
         Route::get('/track', [ComplaintController::class, 'trackComplaint']);
         
      Route::get('/details/{id}', [ComplaintController::class, 'showComplaint']);
