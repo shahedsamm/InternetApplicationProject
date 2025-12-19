@@ -7,7 +7,9 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\CitizenController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use App\Http\Controllers\getNotificationController;
 
 
 
@@ -150,9 +152,8 @@ Route::prefix('citizen')
              ->middleware('can:citizen.complaint.delete');
         Route::get('/list', [ComplaintController::class, 'listComplaints']);
             //  ->middleware('can:citizen.complaint.list');
-        Route::get('/track', [ComplaintController::class, 'trackComplaint']);
-        
-     Route::get('/details/{id}', [ComplaintController::class, 'showComplaint']);
+       Route::get('/track/{serial_number}', [ComplaintController::class, 'trackComplaint']);
+     Route::get('/details/{id}', [ComplaintController::class, 'showComplaint'])->middleware('can: citizen.complaint.delete');
                       });  
     Route::post('/logout', [CitizenController::class, 'logout'])
             ->middleware('can:citizen.profile.logout');
@@ -167,6 +168,9 @@ Route::post('/employee/complaints/update-status', [EmployeController::class, 'up
 Route::post('/save-fcm-token', [CitizenController::class, 'storeFcmToken'])
     ->middleware('auth:sanctum');
 
+
+
+Route::middleware('auth:sanctum')->get('/citizen/notifications', [getNotificationController::class, 'index']);
 
 
              

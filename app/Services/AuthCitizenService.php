@@ -5,6 +5,7 @@ use Spatie\Permission\Models\Role;
 use App\Jobs\SendOtpEmailJob;
 use App\Jobs\SendAccountBlockedEmailJob;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +15,9 @@ class AuthCitizenService
 {
     const OTP_EXPIRY_MINUTES = 5;
     const OTP_MAX_ATTEMPTS = 3;
+    private const BLOCK_MINUTES = 15;
+    // الحد الأقصى لمحاولات تسجيل الدخول
+    private const MAX_FAILED_ATTEMPTS = 5;
 
    public function registerCitizen($data)
 {
@@ -168,40 +172,58 @@ public function verifyOtp($userId, $otpCode)
 }
 
 
- public function loginCitizen($email, $password)
-    {
-        $user = User::where('email', $email)->first();
 
-        if (!$user) {
-            return ['status' => false, 'message' => 'البريد الإلكتروني غير مسجل.'];
-        }
 
-        if ($user->blocked_until && now()->lessThan($user->blocked_until)) {
-            return ['status' => false, 'message' => 'الحساب مقفول حالياً.'];
-        }
+public function loginCitizen($email, $password)
+{
+    $user = User::where('email', $email)->first();
 
-        if (!$user->email_verified_at) {
-            return ['status' => false, 'message' => 'الحساب غير مفعّل.'];
-        }
-
-        if (!Hash::check($password, $user->password)) {
-            return ['status' => false, 'message' => 'كلمة المرور غير صحيحة.'];
-        }
-
-        $token = $user->createToken('citizen_token')->plainTextToken;
-
+    // ❌ بيانات خاطئة (لا نكشف وجود الإيميل)
+    if (!$user || !Hash::check($password, $user->password)) {
         return [
-            'status' => true,
-            'message' => 'تم تسجيل الدخول بنجاح.',
-            'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
+            'status' => false,
+            'message' => 'بيانات تسجيل الدخول غير صحيحة.'
         ];
     }
 
+    // 📧 الحساب غير مفعل
+    if (!$user->email_verified_at) {
+        return [
+            'status' => false,
+            'message' => 'يرجى تفعيل الحساب عبر البريد الإلكتروني قبل تسجيل الدخول.'
+        ];
+    }
+
+    // 👇 استخدام Cache لحساب عدد المحاولات الناجحة
+    $cacheKey = 'successful_login_'.$user->id;
+    $successAttempts = Cache::get($cacheKey, 0);
+
+    // 🚫 إذا تجاوزت 5 محاولات ناجحة في ربع ساعة → حظر 15 دقيقة
+    if ($successAttempts >= 5) {
+        return [
+            'status' => false,
+            'message' => 'تم حظر تسجيل الدخول مؤقتاً بسبب تجاوز عدد المحاولات الناجحة. يرجى المحاولة بعد 15 دقيقة.'
+        ];
+    }
+
+    // ✅ تسجيل محاولة ناجحة
+    $successAttempts++;
+    Cache::put($cacheKey, $successAttempts, now()->addMinutes(15));
+
+    // إنشاء توكن
+    $token = $user->createToken('citizen_token')->plainTextToken;
+
+    return [
+        'status' => true,
+        'message' => 'تم تسجيل الدخول بنجاح.',
+        'token' => $token,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]
+    ];
+}
 
 
 public function logout()

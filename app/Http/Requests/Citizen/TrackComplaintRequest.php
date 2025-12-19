@@ -8,7 +8,7 @@ class TrackComplaintRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // السماح لأي مستخدم مصادق عليه
+        return true;
     }
 
     public function rules()
@@ -18,9 +18,19 @@ class TrackComplaintRequest extends FormRequest
         ];
     }
 
+    public function validationData()
+    {
+        return array_merge(
+            $this->all(),
+            [
+                'serial_number' => $this->route('serial_number'),
+            ]
+        );
+    }
+
     public function messages()
     {
-       return [
+        return [
             'serial_number.required' => 'الرقم المرجعي للشكوى مطلوب.',
             'serial_number.string'   => 'الرقم المرجعي يجب أن يكون نص.',
         ];

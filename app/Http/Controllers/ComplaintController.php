@@ -136,15 +136,16 @@ public function  updateComplaint(UpdateComplaintRequest $request, $complaintId)
         return response()->json($result, 200);
     }
 
-public function trackComplaint(TrackComplaintRequest $request)
+public function trackComplaint(TrackComplaintRequest $request, string $serial_number)
 {
-    $userId = auth()->id();                      // ✅ المستخدم الحالي
-    $serial = $request->serial_number;          // ✅ String من Body مباشرة
+    $userId = auth()->id();      // المستخدم الحالي
+    $serial = $serial_number;   // الرقم المرجعي من الـ URL
 
     $result = $this->service->trackComplaint($serial, $userId);
 
     return response()->json($result);
 }
+
 
   
 public function showComplaint($id)

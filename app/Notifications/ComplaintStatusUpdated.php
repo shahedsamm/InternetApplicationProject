@@ -27,7 +27,7 @@ class ComplaintStatusUpdated extends Notification
             'complaint_id'   => $this->complaint->id,
             'serial_number'  => $this->complaint->serial_number,
             'status'         => $this->status,
-            'employee_name'  => $this->employee->name,
+            // 'employee_name'  => $this->employee->name,
             'message'        => 'تم تحديث حالة شكوى',
         ];
     }

@@ -194,15 +194,14 @@ class EmployeeAuthService
 
    $citizen = $complaint->citizen;
 // أو $complaint->citizen_id حسب جدولك
+$this->notificationService->send(
+    $citizen,
+    'تحديث حالة الشكوى',
+    'تم تغيير حالة شكواك رقم ' . $complaint->serial_number . 
+    ' إلى الحالة: ' . $data['status'],
+    'complaint_status'
+);
 
-    if ($citizen && $citizen->fcm_token) {
-    $this->notificationService->send(
-        $citizen,
-        'تم تعديل الشكوى ✅',
-        'تم تعديل حالة شكواك رقم: ' . $complaint->serial_number,
-        'complaint_status'
-    );
-}
 
 if ($citizen) {
     // 🔔 تخزين الإشعار في جدول notifications
