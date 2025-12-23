@@ -106,7 +106,7 @@ class EmployeeAuthService
     LogHelper::complaint('viewed', $c);
 
     return [
-       
+       'id'            => $c->id,   
         'serial_number' => $c->serial_number,
         'type'          => $finalType,
         'description'   => $finalDescription,
