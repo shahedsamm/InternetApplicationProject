@@ -18,14 +18,13 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule)
-    {
-        // مثال: نسخ احتياطي يومي الساعة 2 صباحًا
-        $schedule->command('backup:run')->dailyAt('02:00');
+   protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
+{
+    $schedule->command('backup:run')->dailyAt('02:00');
+$schedule->command('backup:clean')->dailyAt('02:10');
 
-        // تنظيف النسخ القديمة يوميًا
-        $schedule->command('backup:clean')->daily();
-    }
+}
+
 
     /**
      * Register the commands.
