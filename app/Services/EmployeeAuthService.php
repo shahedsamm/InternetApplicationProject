@@ -106,6 +106,7 @@ class EmployeeAuthService
     LogHelper::complaint('viewed', $c);
 
     return [
+       
         'serial_number' => $c->serial_number,
         'type'          => $finalType,
         'description'   => $finalDescription,
@@ -192,19 +193,13 @@ class EmployeeAuthService
         'notes'        => $data['notes'] ?? null,
     ]);
 
-   $citizen = $complaint->citizen;
-// أو $complaint->citizen_id حسب جدولك
-$this->notificationService->send(
-    $citizen,
-    'تحديث حالة الشكوى',
-    'تم تغيير حالة شكواك رقم ' . $complaint->serial_number . 
-    ' إلى الحالة: ' . $data['status'],
-    'complaint_status'
-);
 
+
+  $citizen = $complaint->citizen;
 
 if ($citizen) {
-    // 🔔 تخزين الإشعار في جدول notifications
+
+    // 🔔 1️⃣ تخزين الإشعار في DB
     $citizen->notify(
         new ComplaintStatusUpdated(
             $complaint,
@@ -212,7 +207,17 @@ if ($citizen) {
             $data['status']
         )
     );
+
+    // 📡 2️⃣ إرسال Push Notification
+    $this->notificationService->send(
+        $citizen,
+        'تحديث حالة الشكوى',
+        'تم تغيير حالة شكواك رقم ' . $complaint->serial_number .
+        ' إلى الحالة: ' . $data['status'],
+        'complaint_status'
+    );
 }
+
 
 $changes = [
     'before_status' => $complaint->getOriginal('status'), // الحالة قبل التعديل

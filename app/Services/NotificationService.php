@@ -54,16 +54,16 @@ class NotificationService
             $messaging->send($cloudMessage);
 
             // Save the notification to the database
-            NotificationModel::query()->create([
-                'type' => 'App\Notifications\UserFollow',
-                'notifiable_type' => 'App\Models\User',
-                'notifiable_id' => $user['id'],
-                'data' => json_encode([
-                    'user' => $user['first_name'] . ' ' . $user['last_name'],
-                    'message' => $message,
-                    'title' => $title,
-                ]), // The data of the notification
-            ]);
+            // NotificationModel::query()->create([
+            //     'type' => 'App\Notifications\UserFollow',
+            //     'notifiable_type' => 'App\Models\User',
+            //     'notifiable_id' => $user['id'],
+            //     'data' => json_encode([
+            //         'user' => $user['first_name'] . ' ' . $user['last_name'],
+            //         'message' => $message,
+            //         'title' => $title,
+            //     ]), // The data of the notification
+            // ]);
             return 1;
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
             Log::error($e->getMessage());
@@ -73,6 +73,8 @@ class NotificationService
             return 0;
         }
     }
+
+
 
    public function getCitizenNotifications(User $citizen)
 {
