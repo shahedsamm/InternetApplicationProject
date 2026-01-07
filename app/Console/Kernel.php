@@ -20,8 +20,8 @@ class Kernel extends ConsoleKernel
      */
    protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
 {
-    $schedule->command('backup:run')->dailyAt('02:00');
-$schedule->command('backup:clean')->dailyAt('02:10');
+    $schedule->command('backup:run')->dailyAt();
+$schedule->command('backup:clean')->dailyAt();
 
 }
 

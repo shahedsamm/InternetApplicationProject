@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('complaint_id')->constrained('complaints')->cascadeOnDelete();
             $table->string('title');
-            $table->text('description')->nullable();
+          $table->json('complaint_snapshot');
             $table->foreignId('requested_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
