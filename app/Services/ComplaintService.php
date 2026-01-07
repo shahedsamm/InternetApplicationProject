@@ -236,6 +236,8 @@ class ComplaintService
 
 
 
+
+
 public function updateComplaint($citizen, $complaintId, $data)
 {
     $complaint = Complaint::where('id', $complaintId)
@@ -250,89 +252,98 @@ public function updateComplaint($citizen, $complaintId, $data)
     }
 
     // ✅ الحقول المسموح تعديلها
-    $fields = ['type', 'section', 'location', 'description', 'national_id','attachment'];
+    $fields = ['type', 'section', 'location', 'description', 'national_id'];
 
     $originalData = $complaint->only($fields);
     $newData = array_intersect_key($data, array_flip($fields));
 
-    // ✅ استخراج التغييرات فقط
-    $changes = [];
-
+    // ✅ التأكد من وجود تعديل فعلي
+    $hasChanges = false;
     foreach ($newData as $key => $value) {
-        if ((string) ($originalData[$key] ?? '') !== (string) $value) {
-            $changes[$key] = [
-                'old' => $originalData[$key] ?? null,
-                'new' => $value
-            ];
+        if ((string)($originalData[$key] ?? '') !== (string)$value) {
+            $hasChanges = true;
+            break;
         }
     }
 
-    if (empty($changes)) {
+    if (!$hasChanges && empty($data['attachments'])) {
         return [
             'status' => false,
             'message' => 'لم يتم إجراء أي تعديل فعلي.'
         ];
     }
 
-    // ✅ حفظ التعديل في complaint_followups
-    $followup = ComplaintFollowup::create([
-        'complaint_id' => $complaint->id,
-        'title'        => 'طلب تعديل من المواطن',
-        'description'  => json_encode($changes, JSON_UNESCAPED_UNICODE),
-        'requested_by' => $citizen->id,
-    ]);
-    // ✅ إضافة ملفات جديدة في حال تم إرسالها
-if (!empty($data['attachments'])) {
-    foreach ($data['attachments'] as $file) {
-        $complaint->addMedia($file)
-            ->toMediaCollection('attachments');
+    /*
+    |--------------------------------------------------------------------------
+    | 🔥 بناء نسخة كاملة من الشكوى بعد التعديل (Snapshot)
+    |--------------------------------------------------------------------------
+    */
+    $complaintSnapshot = $complaint->toArray();
+
+    // تطبيق التعديلات النصية
+    foreach ($newData as $key => $value) {
+        $complaintSnapshot[$key] = $value;
     }
+
+    // إزالة الحقول غير المرغوبة من النسخة
+    unset(
+        $complaintSnapshot['id'],
+        $complaintSnapshot['created_at'],
+        $complaintSnapshot['updated_at'],
+        $complaintSnapshot['locked'],
+        $complaintSnapshot['locked_by'],
+        $complaintSnapshot['locked_at']
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | ✅ حفظ النسخة الكاملة في complaint_followups
+    |--------------------------------------------------------------------------
+    */
+    $followup = ComplaintFollowup::create([
+        'complaint_id'       => $complaint->id,
+        'title'              => 'طلب تعديل من المواطن',
+        'complaint_snapshot' => $complaintSnapshot,
+        'requested_by'       => $citizen->id,
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | ✅ إرفاق الملفات (إن وجدت) مع الشكوى الأصلية أو مع followup حسب تصميمك
+    |--------------------------------------------------------------------------
+    */
+    if (!empty($data['attachments'])) {
+        foreach ($data['attachments'] as $file) {
+            $complaint->addMedia($file)
+                ->toMediaCollection('attachments');
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 🔥 تجهيز نسخة "بعد التعديل" للعرض فقط
+    |--------------------------------------------------------------------------
+    */
+    $complaintAfter = $complaintSnapshot;
+    $complaintAfter['created_at'] = \App\Helpers\DateHelper::arabicDate($complaint->created_at);
+
+    /*
+    |--------------------------------------------------------------------------
+    | 🔥 Logging
+    |--------------------------------------------------------------------------
+    */
+    LogHelper::complaint('update_requested', $complaint, [
+        'requested_by' => $citizen->id,
+        'followup_id'  => $followup->id,
+    ]);
+
+    return [
+        'status'           => true,
+        'message'          => 'تم حفظ طلب التعديل بنجاح.',
+        'complaint_after'  => $complaintAfter,
+    ];
 }
 
-// ✅ نسخة "بعد التعديل" للعرض فقط
-$after = $originalData;
-foreach ($changes as $key => $val) {
-    $after[$key] = $val['new'];
-}
-
-$complaintFull = $complaint->toArray();
-foreach ($after as $key => $val) {
-    $complaintFull[$key] = $val;
-}
-
-// 🔥 إزالة الحقول غير المرغوب فيها
-$hiddenFields = ['attachments', 'notes', 'locked', 'locked_by', 'locked_at', 'attachment'];
-foreach ($hiddenFields as $field) {
-    unset($complaintFull[$field]);
-}
-
-// 🔥 تنسيق created_at
-$complaintFull['created_at'] = \App\Helpers\DateHelper::arabicDate($complaint->created_at);
-
-// 🔥 تسجيل التغيير
-$logChanges = [
-    'before' => [
-        'type' => $complaint->type,
-        'description' => $complaint->description,
-        'location' => $complaint->location,
-    ],
-    'after' => [
-        'type' => $data['type'] ?? $complaint->type,
-        'description' => $data['description'] ?? $complaint->description,
-        'location' => $data['location'] ?? $complaint->location,
-    ]
-];
-
-LogHelper::complaint('updated', $complaint, $logChanges);
-
-return [
-    'status'  => true,
-    'message' => 'تم حفظ طلب التعديل بنجاح.',
-    'complaint_after' => $complaintFull,
-];
-
-
-}
 
 
    
