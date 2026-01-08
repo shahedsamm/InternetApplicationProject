@@ -22,7 +22,7 @@ class UpdateRequest extends BaseFormRequest
             'password' => ['nullable', 'string', 'min:8'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', 'exists:roles,name'],
-            'section' => ['nullable', 'string', 'in:security,finance,education'],
+          'section' => 'required|in:وزارةالكهربا,وزارةالمياه ,وزارةالاتصالات,وزارةالصحة,وزارةالتربية',
         ];
     }
 

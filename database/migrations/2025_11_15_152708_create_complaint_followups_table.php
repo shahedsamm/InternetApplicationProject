@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('requested_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
+        
     }
 
     /**
