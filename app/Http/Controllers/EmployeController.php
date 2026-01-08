@@ -51,13 +51,36 @@ class EmployeController extends Controller
     }
 
 
-     public function updateStatus(UpdateComplaintStatusRequest $request)
-    {
-        $employee = Auth::user();
+  public function update(UpdateComplaintStatusRequest $request)
+{
+    $employee = Auth::user();
+    $data = $request->validated(); // تحتوي على complaint_id + status + notes
 
-        $result = $this->service->updateStatus($employee, $request->validated());
+    $complaintId = $data['complaint_id']; // رقم الشكوى
+    unset($data['complaint_id']);         // ❌ مهم جداً، نزيله قبل التحديث
+
+    $result = $this->service->update($complaintId, $data, $employee);
+
+    return response()->json($result, $result['status'] ? 200 : 400);
+}
+
+    
+ public function reserveComplaint($id)
+    {
+        $employee = Auth::user(); // الموظف المسجل الدخول
+
+        $result = $this->service->reserveComplaint($id, $employee);
 
         return response()->json($result, $result['status'] ? 200 : 400);
     }
+
+     public function cancelReservation(Request $request)
+    {
+        $employee = Auth::user();
+        return response()->json(
+            $this->service->cancelReservation($request->complaint_id, $employee)
+        );
+    }
     
+
 }

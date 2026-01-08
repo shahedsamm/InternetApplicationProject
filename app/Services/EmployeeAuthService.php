@@ -137,104 +137,242 @@ class EmployeeAuthService
 
 
 
- public function updateStatus($employee, $data)
-{
-    // ✅ 1️⃣ فك الأقفال المنتهية
-    Complaint::whereNotNull('locked_by')
-        ->where('locked_at', '<=', now()->subMinutes(10))
-        ->update([
+ public function update(int $id, array $data, $employee)
+    {
+        return \DB::transaction(function () use ($id, $data, $employee) {
+            $complaint = Complaint::lockForUpdate()->find($id);
+
+            if (!$complaint) {
+                abort(404, 'الشكوى غير موجودة.');
+            }
+
+            if ($complaint->locked_by !== $employee->id) {
+                abort(403, 'لا يمكنك تعديل هذه الشكوى لأنها محجوزة لموظف آخر.');
+            }
+
+            // تحديث بيانات الشكوى
+            $followups = $data['followups'] ?? [];
+            unset($data['followups']);
+
+            $complaint->update($data);
+
+            // سجل التعديل
+            $history = ComplaintUpdateHistory::create([
+                'complaint_id' => $complaint->id,
+                'employee_id'  => $employee->id,
+                'status'       => $complaint->status,
+                'title'        => $data['title'] ?? 'تم تعديل الشكوى',
+                'notes'        => $data['notes'] ?? null,
+            ]);
+
+            // followups
+            if (!empty($followups)) {
+                foreach ($followups as $followupData) {
+                    $followup = ComplaintFollowup::create([
+                        'complaint_id' => $complaint->id,
+                        'title'        => $followupData['title'],
+                        'description'  => $followupData['description'] ?? null,
+                        'requested_by' => $employee->id,
+                    ]);
+                    $history->update(['followup_id' => $followup->id]);
+                }
+            }
+
+            // فك القفل بعد التعديل
+            $complaint->update([
+                'locked'    => 0,
+                'locked_by' => null,
+                'locked_at' => null,
+            ]);
+
+            // إرسال إشعار للمواطن
+            if ($complaint->citizen) {
+                $this->notificationService->send(
+                    $complaint->citizen,
+                    'تحديث حالة الشكوى',
+                    'تم تحديث شكواك رقم ' . $complaint->serial_number,
+                    'complaint_status'
+                );
+            }
+
+            return $complaint->fresh(['histories', 'followups']);
+        });
+    }
+
+
+    /**
+     * حفظ الملفات داخل Media Library
+     */
+    protected function handleMedia($complaint, $data)
+    {
+        if (!empty($data['attachments'])) {
+            foreach ($data['attachments'] as $file) {
+                $complaint->addMedia($file)
+                    ->toMediaCollection('attachments');
+            }
+        }
+    }
+
+
+ public function reserveComplaint(int $complaintId, $employee)
+    {
+        $complaint = Complaint::find($complaintId);
+
+        if (!$complaint) {
+            abort(404, 'الشكوى غير موجودة.');
+        }
+
+        if ($complaint->locked) {
+            return [
+                'status' => false,
+                'message' => 'هذه الشكوى مقفولة حالياً من قبل موظف آخر.'
+            ];
+        }
+
+        $complaint->update([
+            'locked'    => 1,
+            'locked_by' => $employee->id,
+            'locked_at' => now(),
+        ]);
+
+        return [
+            'status'    => true,
+            'message'   => 'تم حجز الشكوى بنجاح.',
+            'complaint' => $complaint->fresh()
+        ];
+    }
+
+
+
+
+
+
+ public function cancelReservation(int $complaintId, $employee)
+    {
+        $complaint = Complaint::find($complaintId);
+
+        if (!$complaint) {
+            abort(404, 'الشكوى غير موجودة.');
+        }
+
+        if ($complaint->locked_by !== $employee->id) {
+            return [
+                'status' => false,
+                'message' => 'لا يمكنك إلغاء حجز هذه الشكوى، لأنها ليست محجوزة لك.'
+            ];
+        }
+
+        $complaint->update([
+            'locked'    => 0,
             'locked_by' => null,
             'locked_at' => null,
         ]);
 
-    // ✅ 2️⃣ جلب الشكوى
-    $complaint = Complaint::find($data['complaint_id']);
-
-    if (!$complaint) {
         return [
-            'status' => false,
-            'message' => 'الشكوى غير موجودة.'
+            'status'  => true,
+            'message' => 'تم إلغاء الحجز بنجاح.'
         ];
     }
 
-    // ✅ 3️⃣ نفس القسم
-    if ($complaint->section !== $employee->section) {
-        return [
-            'status' => false,
-            'message' => 'لا يمكنك التعديل على شكوى من قسم آخر.'
-        ];
-    }
 
-    // ✅ 4️⃣ التحقق من القفل
-    if (
-        $complaint->locked_by !== null &&
-        $complaint->locked_by !== $employee->id &&
-        $complaint->locked_at > now()->subMinutes(10)
-    ) {
-        return [
-            'status' => false,
-            'message' => 'الشكوى مقفولة حالياً من قبل موظف آخر.'
-        ];
-    }
+//  public function updateStatus($employee, $data)
+// {
+//     // ✅ 1️⃣ فك الأقفال المنتهية
+//     Complaint::whereNotNull('locked_by')
+//         ->where('locked_at', '<=', now()->subMinutes(10))
+//         ->update([
+//             'locked_by' => null,
+//             'locked_at' => null,
+//         ]);
 
-    // ✅ 5️⃣ قفل الشكوى
-    $complaint->locked_by = $employee->id;
-    $complaint->locked_at = now();
+//     // ✅ 2️⃣ جلب الشكوى
+//     $complaint = Complaint::find($data['complaint_id']);
 
-    // ✅ 6️⃣ تحديث الحالة
-    $complaint->status = $data['status'];
-    $complaint->save();
+//     if (!$complaint) {
+//         return [
+//             'status' => false,
+//             'message' => 'الشكوى غير موجودة.'
+//         ];
+//     }
 
-    // ✅ 7️⃣ حفظ سجل التعديل
-    $history = ComplaintUpdateHistory::create([
-        'complaint_id' => $complaint->id,
-        'employee_id'  => $employee->id,
-        'status'       => $data['status'],
-        'notes'        => $data['notes'] ?? null,
-    ]);
+//     // ✅ 3️⃣ نفس القسم
+//     if ($complaint->section !== $employee->section) {
+//         return [
+//             'status' => false,
+//             'message' => 'لا يمكنك التعديل على شكوى من قسم آخر.'
+//         ];
+//     }
 
+//     // ✅ 4️⃣ التحقق من القفل
+//     if (
+//         $complaint->locked_by !== null &&
+//         $complaint->locked_by !== $employee->id &&
+//         $complaint->locked_at > now()->subMinutes(10)
+//     ) {
+//         return [
+//             'status' => false,
+//             'message' => 'الشكوى مقفولة حالياً من قبل موظف آخر.'
+//         ];
+//     }
 
+//     // ✅ 5️⃣ قفل الشكوى
+//     $complaint->locked_by = $employee->id;
+//     $complaint->locked_at = now();
 
-  $citizen = $complaint->citizen;
+//     // ✅ 6️⃣ تحديث الحالة
+//     $complaint->status = $data['status'];
+//     $complaint->save();
 
-if ($citizen) {
-
-    // 🔔 1️⃣ تخزين الإشعار في DB
-    $citizen->notify(
-        new ComplaintStatusUpdated(
-            $complaint,
-            $employee,
-            $data['status']
-        )
-    );
-
-    // 📡 2️⃣ إرسال Push Notification
-    $this->notificationService->send(
-        $citizen,
-        'تحديث حالة الشكوى',
-        'تم تغيير حالة شكواك رقم ' . $complaint->serial_number .
-        ' إلى الحالة: ' . $data['status'],
-        'complaint_status'
-    );
-}
+//     // ✅ 7️⃣ حفظ سجل التعديل
+//     $history = ComplaintUpdateHistory::create([
+//         'complaint_id' => $complaint->id,
+//         'employee_id'  => $employee->id,
+//         'status'       => $data['status'],
+//         'notes'        => $data['notes'] ?? null,
+//     ]);
 
 
-$changes = [
-    'before_status' => $complaint->getOriginal('status'), // الحالة قبل التعديل
-    'after_status'  => $data['status'], // الحالة بعد التعديل
-];
-LogHelper::complaint('status_changed', $complaint, $changes);
 
-    return [
-        'status'  => true,
-        'message' => 'تم تحديث حالة الشكوى بنجاح.',
-        'data'    => [
-            'complaint_id'  => $complaint->id,
-            'new_status'   => $complaint->status,
-            'locked_until' => now()->addMinutes(10)->format('Y-m-d '),
-            'history'      => $history
-        ]
-    ];
-}
+//   $citizen = $complaint->citizen;
+
+// if ($citizen) {
+
+//     // 🔔 1️⃣ تخزين الإشعار في DB
+//     $citizen->notify(
+//         new ComplaintStatusUpdated(
+//             $complaint,
+//             $employee,
+//             $data['status']
+//         )
+//     );
+
+//     // 📡 2️⃣ إرسال Push Notification
+//     $this->notificationService->send(
+//         $citizen,
+//         'تحديث حالة الشكوى',
+//         'تم تغيير حالة شكواك رقم ' . $complaint->serial_number .
+//         ' إلى الحالة: ' . $data['status'],
+//         'complaint_status'
+//     );
+// }
+
+
+// $changes = [
+//     'before_status' => $complaint->getOriginal('status'), // الحالة قبل التعديل
+//     'after_status'  => $data['status'], // الحالة بعد التعديل
+// ];
+// LogHelper::complaint('status_changed', $complaint, $changes);
+
+//     return [
+//         'status'  => true,
+//         'message' => 'تم تحديث حالة الشكوى بنجاح.',
+//         'data'    => [
+//             'complaint_id'  => $complaint->id,
+//             'new_status'   => $complaint->status,
+//             'locked_until' => now()->addMinutes(10)->format('Y-m-d '),
+//             'history'      => $history
+//         ]
+//     ];
+// }
 
 }

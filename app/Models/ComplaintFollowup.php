@@ -23,4 +23,9 @@ class ComplaintFollowup extends Model
     return $this->belongsTo(User::class, 'requested_by');
 }
 
+protected $casts = [
+    'complaint_snapshot' => 'array',
+];
+
+
 }

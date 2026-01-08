@@ -64,68 +64,78 @@ class ComplaintService
         return $query->findOrFail($id);
     }
 
-    public function update(int $id, array $data, $user)
-    {
-        return DB::transaction(function () use ($id, $data, $user) {
 
-            $complaint = Complaint::lockForUpdate()->find($id);
 
-            if (!$complaint) {
-                abort(404, 'Complaint not found.');
-            }
 
-            // LOCK CHECK: If status is pending or done → cannot update
-            if ($complaint->locked == 1) {
-                abort(401, 'This record is currently locked by another employee.');
-            }
+    // public function update(int $id, array $data, $user)
+    // {
+    //     return DB::transaction(function () use ($id, $data, $user) {
 
-            // Lock the record
-            $complaint->update(['locked' => 1]);
+    //         $complaint = Complaint::lockForUpdate()->find($id);
 
-            $followups = $data['followups'] ?? [];
-            unset($data['followups']);
-            // Update complaint
-            $complaint->update($data);
+    //         if (!$complaint) {
+    //             abort(404, 'Complaint not found.');
+    //         }
 
-            // Create complaint history
-            $history = ComplaintUpdateHistory::create([
-                'complaint_id' => $complaint->id,
-                'employee_id'  => $user->id,
-                'followup_id'  => null,
-                'status'       => $complaint->status,
-                'title'        => $data['title'] ?? 'Updated Complaint',
-                'notes'        => $data['notes'] ?? null,
-            ]);
+    //         // LOCK CHECK: If status is pending or done → cannot update
+    //         if ($complaint->locked == 1) {
+    //             abort(401, 'This record is currently locked by another employee.');
+    //         }
 
-            // Create followup
-            if (!empty($followups)) {
-                foreach ($followups as $followup) {
-                    $followup = ComplaintFollowup::create([
-                        'complaint_id' => $complaint->id,
-                        'title' => $followup['title'],
-                        'description' => $followup['description'],
-                        'requested_by' => auth()->id(),
-                    ]);
+    //         // Lock the record
+    //         $complaint->update(['locked' => 1]);
 
-                    $history->update(['followup_id' => $followup->id]);
-                }
-            }
+    //         $followups = $data['followups'] ?? [];
+    //         unset($data['followups']);
+    //         // Update complaint
+    //         $complaint->update($data);
 
-            // Store attachments
-            $this->handleMedia($complaint, $data);
+    //         // Create complaint history
+    //         $history = ComplaintUpdateHistory::create([
+    //             'complaint_id' => $complaint->id,
+    //             'employee_id'  => $user->id,
+    //             'followup_id'  => null,
+    //             'status'       => $complaint->status,
+    //             'title'        => $data['title'] ?? 'Updated Complaint',
+    //             'notes'        => $data['notes'] ?? null,
+    //         ]);
 
-            // Unlock record
-            $complaint->update(['locked' => 0]);
+    //         // Create followup
+    //         if (!empty($followups)) {
+    //             foreach ($followups as $followup) {
+    //                 $followup = ComplaintFollowup::create([
+    //                     'complaint_id' => $complaint->id,
+    //                     'title' => $followup['title'],
+    //                     'description' => $followup['description'],
+    //                     'requested_by' => auth()->id(),
+    //                 ]);
 
-            // Send user notification
-            Notification::send(
-                $complaint->citizen,
-                new ComplaintUpdatedNotification($complaint)
-            );
+    //                 $history->update(['followup_id' => $followup->id]);
+    //             }
+    //         }
 
-            return $complaint->fresh(['histories', 'followups']);
-        });
-    }
+    //         // Store attachments
+    //         $this->handleMedia($complaint, $data);
+
+    //         // Unlock record
+    //         $complaint->update(['locked' => 0]);
+
+    //         // Send user notification
+    //         Notification::send(
+    //             $complaint->citizen,
+    //             new ComplaintUpdatedNotification($complaint)
+    //         );
+
+    //         return $complaint->fresh(['histories', 'followups']);
+    //     });
+    // }
+
+
+
+
+
+
+
 
     public function statistics(array $filters)
     {
@@ -245,19 +255,19 @@ public function updateComplaint($citizen, $complaintId, $data)
         ->first();
 
     if (!$complaint) {
-        return [
+        return response()->json([
             'status' => false,
             'message' => 'الشكوى غير موجودة أو لا تخصك'
-        ];
+        ], 404);
     }
 
-    // ✅ الحقول المسموح تعديلها
+    // الحقول المسموح تعديلها
     $fields = ['type', 'section', 'location', 'description', 'national_id'];
 
     $originalData = $complaint->only($fields);
     $newData = array_intersect_key($data, array_flip($fields));
 
-    // ✅ التأكد من وجود تعديل فعلي
+    // التحقق من وجود تعديل فعلي
     $hasChanges = false;
     foreach ($newData as $key => $value) {
         if ((string)($originalData[$key] ?? '') !== (string)$value) {
@@ -267,83 +277,64 @@ public function updateComplaint($citizen, $complaintId, $data)
     }
 
     if (!$hasChanges && empty($data['attachments'])) {
-        return [
+        return response()->json([
             'status' => false,
             'message' => 'لم يتم إجراء أي تعديل فعلي.'
-        ];
+        ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | 🔥 بناء نسخة كاملة من الشكوى بعد التعديل (Snapshot)
-    |--------------------------------------------------------------------------
-    */
+    // بناء نسخة كاملة من الشكوى بعد التعديل (snapshot)
     $complaintSnapshot = $complaint->toArray();
 
-    // تطبيق التعديلات النصية
+    // تطبيق التعديلات النصية فقط
     foreach ($newData as $key => $value) {
         $complaintSnapshot[$key] = $value;
     }
 
-    // إزالة الحقول غير المرغوبة من النسخة
+    // إزالة الحقول غير المرغوبة
     unset(
         $complaintSnapshot['id'],
         $complaintSnapshot['created_at'],
         $complaintSnapshot['updated_at'],
         $complaintSnapshot['locked'],
         $complaintSnapshot['locked_by'],
-        $complaintSnapshot['locked_at']
+        $complaintSnapshot['locked_at'],
+        $complaintSnapshot['attachments'] // لا نحفظ الملفات داخل snapshot
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | ✅ حفظ النسخة الكاملة في complaint_followups
-    |--------------------------------------------------------------------------
-    */
+    // حفظ النسخة الكاملة في complaint_followups (JSON عربي مفهوم)
     $followup = ComplaintFollowup::create([
         'complaint_id'       => $complaint->id,
         'title'              => 'طلب تعديل من المواطن',
-        'complaint_snapshot' => $complaintSnapshot,
+        'complaint_snapshot' => json_encode($complaintSnapshot, JSON_UNESCAPED_UNICODE),
         'requested_by'       => $citizen->id,
     ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | ✅ إرفاق الملفات (إن وجدت) مع الشكوى الأصلية أو مع followup حسب تصميمك
-    |--------------------------------------------------------------------------
-    */
+    // حفظ الملفات داخل media (Spatie)
     if (!empty($data['attachments'])) {
         foreach ($data['attachments'] as $file) {
-            $complaint->addMedia($file)
+            $complaint
+                ->addMedia($file)
                 ->toMediaCollection('attachments');
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | 🔥 تجهيز نسخة "بعد التعديل" للعرض فقط
-    |--------------------------------------------------------------------------
-    */
+    // نسخة "بعد التعديل" للعرض فقط
     $complaintAfter = $complaintSnapshot;
     $complaintAfter['created_at'] = \App\Helpers\DateHelper::arabicDate($complaint->created_at);
 
-    /*
-    |--------------------------------------------------------------------------
-    | 🔥 Logging
-    |--------------------------------------------------------------------------
-    */
+    // تسجيل العملية
     LogHelper::complaint('update_requested', $complaint, [
         'requested_by' => $citizen->id,
         'followup_id'  => $followup->id,
     ]);
 
-    return [
-        'status'           => true,
-        'message'          => 'تم حفظ طلب التعديل بنجاح.',
-        'complaint_after'  => $complaintAfter,
-    ];
+    return response()->json([
+        'status'          => true,
+        'message'         => 'تم حفظ طلب التعديل بنجاح.',
+        'complaint_after' => $complaintAfter,
+    ], 200, [], JSON_UNESCAPED_UNICODE);
 }
-
 
 
    
